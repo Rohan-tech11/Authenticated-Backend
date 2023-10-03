@@ -1,0 +1,15 @@
+/**
+ * Created by Rohan
+ */
+
+package com.Genesis.SwiftSend.Security;
+
+import org.springframework.security.core.userdetails.UserDetails;
+
+/**
+ * @author rohan
+ *
+ */
+public class UserRegistrationDetails implements UserDetails {
+
+}

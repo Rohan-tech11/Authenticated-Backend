@@ -1,0 +1,16 @@
+/**
+ * Created by Rohan
+ */
+
+package com.Genesis.SwiftSend.Registration.Token;
+
+/**
+ * @author rohan
+ *
+ */
+public interface VerificationTokenRepository
+extends
+	JpaRepository<VerificationToken, Long> {
+VerificationToken findByToken(String token);
+}
+

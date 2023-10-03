@@ -1,0 +1,13 @@
+/**
+ * Created by Rohan
+ */
+
+package com.Genesis.SwiftSend.Event.Listener;
+
+/**
+ * @author rohan
+ *
+ */public class RegistrationCompleteEventListener implements ApplicationListener<RegistrationCompleyte> {
+	
+
+}

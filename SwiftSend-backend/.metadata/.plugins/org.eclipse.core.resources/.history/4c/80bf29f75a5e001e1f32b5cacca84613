@@ -1,0 +1,13 @@
+/**
+ * Created by Rohan
+ */
+
+package com.Genesis.SwiftSend.Security;
+
+/**
+ * @author rohan
+ *
+ */
+public class UserRegistrationDetails {
+
+}

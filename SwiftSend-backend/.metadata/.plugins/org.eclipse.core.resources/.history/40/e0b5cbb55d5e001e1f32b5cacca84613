@@ -1,0 +1,26 @@
+/**
+ * Created by Rohan
+ */
+
+package com.Genesis.SwiftSend.Security;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+/**
+ * @author rohan
+ *
+ */
+@Service
+@RequiredArgsConstructor
+public class UserRegistrationDetailsService implements UserDetailsService {
+
+	@Override
+	public UserDetails loadUserByUsername(String username)
+			throws UsernameNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}
