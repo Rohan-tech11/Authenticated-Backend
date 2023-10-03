@@ -28,7 +28,7 @@ public class User {
 	// merlin check the id sequence here
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String firstName;
@@ -46,6 +46,6 @@ public class User {
 	private boolean isEnabled = false;
 
 	@Column(unique = true)
-	private int mobileNumber;
+	private long mobileNumber;
 
 }

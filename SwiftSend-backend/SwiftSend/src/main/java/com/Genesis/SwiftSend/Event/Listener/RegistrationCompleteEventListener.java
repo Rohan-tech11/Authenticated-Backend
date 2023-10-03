@@ -65,7 +65,7 @@ public class RegistrationCompleteEventListener
 				+ "Please, follow the link below to complete your registration.</p>"
 				+ "<a href=\"" + url
 				+ "\">Verify your email to activate your account</a>"
-				+ "<p> Thank you <br> Users Registration Portal Service";
+				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();
 		var messageHelper = new MimeMessageHelper(message);
 		messageHelper.setFrom("heyminion0401@gmail.com", senderName);
