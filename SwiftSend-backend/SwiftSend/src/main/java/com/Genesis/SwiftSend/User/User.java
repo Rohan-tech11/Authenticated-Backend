@@ -6,6 +6,8 @@ package com.Genesis.SwiftSend.User;
 
 import org.hibernate.annotations.NaturalId;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,27 +27,28 @@ import lombok.NoArgsConstructor;
 @Entity
 public class User {
 
-	// merlin check the id sequence here
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonIgnore // Ignore this field during serialization
 	private Long id;
 
-	private String firstName;
-
-	private String lastName;
+	private String fullName;
 
 	@NaturalId(mutable = true)
 	@Column(unique = true)
 	private String email;
 
+	@JsonIgnore // Ignore this field during serialization
 	private String password;
 
+	@JsonIgnore // Ignore this field during serialization
 	private String role;
 
+	@JsonIgnore // Ignore this field during serialization
 	private boolean isEnabled = false;
 
 	@Column(unique = true)
-	private long mobileNumber;
+	@JsonIgnore // Ignore this field during serialization
+	private String mobileNumber;
 
 }

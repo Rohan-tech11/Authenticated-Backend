@@ -7,6 +7,7 @@ package com.Genesis.SwiftSend.User;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,12 +42,10 @@ public class UserService implements IUserService {
 	public User registerUser(RegistrationRequest request) {
 		Optional<User> user = this.findByEmail(request.email());
 		if (user.isPresent()) {
-			throw new UserAlreadyExistsException(
-					"User with email " + request.email() + " already exists");
+			throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
 		}
 		var newUser = new User();
-		newUser.setFirstName(request.firstName());
-		newUser.setLastName(request.lastName());
+		newUser.setFullName(request.fullName());
 		newUser.setEmail(request.email());
 		newUser.setPassword(passwordEncoder.encode(request.password()));
 		newUser.setMobileNumber(request.mobileNumber());
@@ -73,9 +72,7 @@ public class UserService implements IUserService {
 		}
 		User user = token.getUser();
 		Calendar calendar = Calendar.getInstance();
-		if ((token.getExpirationTime().getTime()
-				- calendar.getTime().getTime()) <= 0) {
-			tokenRepository.delete(token);
+		if ((token.getExpirationTime().getTime() - calendar.getTime().getTime()) <= 0) {
 			return "Token already expired";
 		}
 		user.setEnabled(true);
@@ -83,4 +80,23 @@ public class UserService implements IUserService {
 		return "valid";
 	}
 
+	/*
+	 * If the verificationToken object is retrieved from the database within the
+	 * same transaction Hibernates
+	 * 
+	 * typically tracks changes to managed entities and will update the existing
+	 * record in the database with the changes when the transaction is committed.In
+	 * this case,you won't see a new row in the database.
+	 */
+
+	@Override
+	public VerificationToken generateNewVerificationToken(String oldToken) {
+		// TODO Auto-generated method stub
+		VerificationToken token = tokenRepository.findByToken(oldToken);
+		var tokenTime = new VerificationToken();// managed state
+		System.out.println("token time is " + token.getExpirationTime());
+		token.setToken(UUID.randomUUID().toString());
+		token.setExpirationTime(token.getTokenExpirationTime());
+		return tokenRepository.save(token);
+	}
 }

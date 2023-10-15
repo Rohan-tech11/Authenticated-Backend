@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
+import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 
 /**
  * @author Rohan
@@ -23,5 +24,7 @@ public interface IUserService {
 	void saveUserVerificationToken(User theUser, String verificationToken);
 
 	String validateToken(String theToken);
+
+	VerificationToken generateNewVerificationToken(String oldToken);
 
 }

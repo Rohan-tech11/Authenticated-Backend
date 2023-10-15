@@ -18,6 +18,7 @@ import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author rohan
@@ -26,6 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@ToString
 @NoArgsConstructor
 public class VerificationToken {
 	@Id
@@ -33,7 +35,7 @@ public class VerificationToken {
 	private Long id;
 	private String token;
 	private Date expirationTime;
-	private static final int EXPIRATION_TIME = 15;
+	private static final int EXPIRATION_TIME = 2;
 
 	@OneToOne
 	@JoinColumn(name = "user_id")
