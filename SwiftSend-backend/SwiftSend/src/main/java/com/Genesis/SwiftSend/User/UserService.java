@@ -5,8 +5,10 @@
 package com.Genesis.SwiftSend.User;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,8 @@ import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 import com.Genesis.SwiftSend.Registration.Token.VerificationTokenRepository;
+import com.Genesis.SwiftSend.Role.Role;
+import com.Genesis.SwiftSend.Role.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,8 +34,7 @@ public class UserService implements IUserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final VerificationTokenRepository tokenRepository;
-
-	private static final String USER_ROLE = "USER";
+	private final RoleRepository roleRepository;
 
 	@Override
 	public List<User> getUsers() {
@@ -49,7 +52,10 @@ public class UserService implements IUserService {
 		newUser.setEmail(request.email());
 		newUser.setPassword(passwordEncoder.encode(request.password()));
 		newUser.setMobileNumber(request.mobileNumber());
-		newUser.setRole(USER_ROLE);
+		Role userRole = roleRepository.findByAuthority("USER").get();
+		Set<Role> authorities = new HashSet<>();
+		authorities.add(userRole);
+		newUser.setAuthorities(authorities);
 		return userRepository.save(newUser);
 	}
 

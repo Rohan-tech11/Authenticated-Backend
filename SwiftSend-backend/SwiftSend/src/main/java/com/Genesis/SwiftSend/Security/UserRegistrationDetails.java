@@ -4,15 +4,13 @@
 
 package com.Genesis.SwiftSend.Security;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.Genesis.SwiftSend.Role.Role;
 import com.Genesis.SwiftSend.User.User;
 
 import lombok.Data;
@@ -32,14 +30,13 @@ public class UserRegistrationDetails implements UserDetails {
 	private String userName;
 	private String password;
 	private boolean isEnabled;
-	private List<GrantedAuthority> authorities;
+	private Set<Role> authorities;
 
 	public UserRegistrationDetails(User user) {
 		this.userName = user.getEmail();
 		this.password = user.getPassword();
-		this.isEnabled = user.isEnabled();
-		this.authorities = Arrays.stream(user.getRole().split(","))
-				.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+		this.isEnabled = user.isEnabled(); // debug here
+		this.authorities = user.getAuthorities();
 	}
 
 	@Override
