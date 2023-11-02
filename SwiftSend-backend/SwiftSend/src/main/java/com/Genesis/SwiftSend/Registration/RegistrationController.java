@@ -23,6 +23,7 @@ import com.Genesis.SwiftSend.Event.RegistrationCompleteEvent;
 import com.Genesis.SwiftSend.Event.Listener.RegistrationCompleteEventListener;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 import com.Genesis.SwiftSend.Registration.Token.VerificationTokenRepository;
+import com.Genesis.SwiftSend.ResponseHandler.LoginResponseDto;
 import com.Genesis.SwiftSend.ResponseHandler.ResponseHandler;
 import com.Genesis.SwiftSend.User.User;
 import com.Genesis.SwiftSend.User.UserService;
@@ -103,6 +104,11 @@ public class RegistrationController {
 
 	public String applicationUrl(HttpServletRequest request) {
 		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+	}
+
+	@PostMapping("/login")
+	public LoginResponseDto loginUser(@RequestBody LoginRequest body) {
+		return userService.loginUser(body.email(), body.password());
 	}
 
 }

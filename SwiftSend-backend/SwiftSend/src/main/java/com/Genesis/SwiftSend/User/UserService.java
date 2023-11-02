@@ -11,13 +11,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
+import com.Genesis.SwiftSend.Registration.Token.JwtTokenService;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 import com.Genesis.SwiftSend.Registration.Token.VerificationTokenRepository;
+import com.Genesis.SwiftSend.ResponseHandler.LoginResponseDto;
 import com.Genesis.SwiftSend.Role.Role;
 import com.Genesis.SwiftSend.Role.RoleRepository;
 
@@ -35,6 +41,9 @@ public class UserService implements IUserService {
 	private final PasswordEncoder passwordEncoder;
 	private final VerificationTokenRepository tokenRepository;
 	private final RoleRepository roleRepository;
+	private final AuthenticationManager authenticationManager;
+
+	private final JwtTokenService JWTtokenService;
 
 	@Override
 	public List<User> getUsers() {
@@ -105,4 +114,22 @@ public class UserService implements IUserService {
 		token.setExpirationTime(token.getTokenExpirationTime());
 		return tokenRepository.save(token);
 	}
+
+	// authenticate manager will use user details and user details service to
+	// authenticate the logged in user
+	public LoginResponseDto loginUser(String email, String password) {
+
+		try {
+			Authentication auth = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+
+			String token = JWTtokenService.generateJwt(auth);
+
+			return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
+
+		} catch (AuthenticationException e) {
+			return new LoginResponseDto(null, "");
+		}
+	}
+
 }

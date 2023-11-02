@@ -29,4 +29,9 @@ public class UserController {
 		return userService.getUsers();
 	}
 
+	@GetMapping("/test")
+	public String test() {
+		return "hello";
+	}
+
 }

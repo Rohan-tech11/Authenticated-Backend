@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
+import com.Genesis.SwiftSend.ResponseHandler.LoginResponseDto;
 
 /**
  * @author Rohan
@@ -26,5 +27,7 @@ public interface IUserService {
 	String validateToken(String theToken);
 
 	VerificationToken generateNewVerificationToken(String oldToken);
+
+	LoginResponseDto loginUser(String email, String password);
 
 }

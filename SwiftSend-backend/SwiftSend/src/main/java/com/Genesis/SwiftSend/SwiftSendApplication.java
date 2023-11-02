@@ -44,6 +44,7 @@ public class SwiftSendApplication {
 					passwordEncode.encode("SwiftSendAdmin"), true, "1234-6785-345", roles);
 
 			userRepository.save(admin);
+			log.info("logged admin is" + userRepository.findByEmail("johndoe12345@gmail.com").get());
 		};
 	}
 }
