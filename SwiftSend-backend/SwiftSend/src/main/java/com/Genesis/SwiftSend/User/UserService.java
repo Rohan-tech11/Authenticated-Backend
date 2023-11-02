@@ -53,8 +53,14 @@ public class UserService implements IUserService {
 	@Override
 	public User registerUser(RegistrationRequest request) {
 		Optional<User> user = this.findByEmail(request.email());
+		Optional<User> userByMobile = this.findByMobileNumber(request.mobileNumber());
+
 		if (user.isPresent()) {
 			throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
+		}
+		if (userByMobile.isPresent()) {
+			throw new UserAlreadyExistsException(
+					"User with mobile number " + request.mobileNumber() + " is already registered");
 		}
 		var newUser = new User();
 		newUser.setFullName(request.fullName());
@@ -66,6 +72,15 @@ public class UserService implements IUserService {
 		authorities.add(userRole);
 		newUser.setAuthorities(authorities);
 		return userRepository.save(newUser);
+	}
+
+	/**
+	 * @param mobileNumber
+	 * @return
+	 */
+	public Optional<User> findByMobileNumber(String mobileNumber) {
+		// TODO Auto-generated method stub
+		return userRepository.findByMobileNumber(mobileNumber);
 	}
 
 	@Override

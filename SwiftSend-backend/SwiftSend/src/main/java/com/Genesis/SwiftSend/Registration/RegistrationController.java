@@ -5,8 +5,6 @@
 package com.Genesis.SwiftSend.Registration;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -59,30 +57,48 @@ public class RegistrationController {
 				HttpStatus.CREATED, user);
 	}
 
+	/*
+	 * @GetMapping("/verifyEmail") public ResponseEntity<Object>
+	 * verifyEmail(@RequestParam("token") String token) { String requestUrl = new
+	 * String( applicationUrl(servletRequest) +
+	 * "/register/resend-verification-token?token=" + token.toString());
+	 * VerificationToken theToken = tokenRepository.findByToken(token); if
+	 * (theToken.getUser().isEnabled()) {
+	 * 
+	 * return ResponseHandler.
+	 * responseBuilder("This account has already been verified, please, login.",
+	 * HttpStatus.OK); } String verificationResult =
+	 * userService.validateToken(token);
+	 * 
+	 * // a Map to hold the data you want to send in the response Map<String,
+	 * Object> data = new HashMap<>(); data.put("requestUrl", requestUrl); if
+	 * (verificationResult.equalsIgnoreCase("valid")) { return ResponseHandler.
+	 * responseBuilder("Email verified successfully, now you can login to your account"
+	 * , HttpStatus.OK); }
+	 * 
+	 * "Invalid verification token , <a href=\"" + url +
+	 * "\"> Get a new Verification Link . </a>"; return ResponseHandler.
+	 * responseBuilder("Token got expired please request for a new verification link"
+	 * , HttpStatus.NOT_FOUND, data); }
+	 */
+
 	@GetMapping("/verifyEmail")
 	public ResponseEntity<Object> verifyEmail(@RequestParam("token") String token) {
-		String requestUrl = new String(
-				applicationUrl(servletRequest) + "/register/resend-verification-token?token=" + token.toString());
 		VerificationToken theToken = tokenRepository.findByToken(token);
 		if (theToken.getUser().isEnabled()) {
-
-			return ResponseHandler.responseBuilder("This account has already been verified, please, login.",
-					HttpStatus.OK);
+			return ResponseEntity.ok("This account has already been verified. Please <a href=\"/login\">log in</a>.");
 		}
+
 		String verificationResult = userService.validateToken(token);
 
-		// a Map to hold the data you want to send in the response
-		Map<String, Object> data = new HashMap<>();
-		data.put("requestUrl", requestUrl);
 		if (verificationResult.equalsIgnoreCase("valid")) {
-			return ResponseHandler.responseBuilder("Email verified successfully, now you can login to your account",
-					HttpStatus.OK);
+			return ResponseEntity
+					.ok("Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
+		} else {
+			String requestUrl = "/register/resend-verification-token?token=" + token;
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					"Token has expired. Please <a href=\"" + requestUrl + "\">request a new verification link</a>.");
 		}
-		/*
-		 * "Invalid verification token , <a href=\"" + url +
-		 * "\"> Get a new Verification Link . </a>";
-		 */ return ResponseHandler.responseBuilder("Token got expired please request for a new verification link",
-				HttpStatus.NOT_FOUND, data);
 	}
 
 	@GetMapping("/resend-verification-token")

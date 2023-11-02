@@ -15,4 +15,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 
+	/**
+	 * @param mobileNumber
+	 * @return
+	 */
+	Optional<User> findByMobileNumber(String mobileNumber);
+
 }

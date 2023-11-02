@@ -22,6 +22,8 @@ public interface IUserService {
 
 	Optional<User> findByEmail(String email);
 
+	Optional<User> findByMobileNumber(String mobileNumber);
+
 	void saveUserVerificationToken(User theUser, String verificationToken);
 
 	String validateToken(String theToken);
