@@ -1,7 +1,6 @@
 /**
- * Created by Rohan
+ * created by @Rohan
  */
-
 package com.Genesis.SwiftSend.Exception;
 
 import java.util.Map;
@@ -12,7 +11,7 @@ import org.springframework.http.HttpStatus;
  * @author rohan
  *
  */
-public class UserAlreadyExistsException extends RuntimeException {
+public class CustomException extends RuntimeException {
 
 	/**
 	 * 
@@ -21,7 +20,7 @@ public class UserAlreadyExistsException extends RuntimeException {
 	private final HttpStatus httpStatus;
 	private final Map<String, Object> errorDetails;
 
-	public UserAlreadyExistsException(String message, HttpStatus httpStatus, Map<String, Object> errorDetails) {
+	public CustomException(String message, HttpStatus httpStatus, Map<String, Object> errorDetails) {
 		super(message);
 		this.httpStatus = httpStatus;
 		this.errorDetails = errorDetails;
@@ -34,5 +33,4 @@ public class UserAlreadyExistsException extends RuntimeException {
 	public Map<String, Object> getErrorDetails() {
 		return errorDetails;
 	}
-
 }

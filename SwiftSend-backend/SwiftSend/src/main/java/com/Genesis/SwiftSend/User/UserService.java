@@ -5,19 +5,27 @@
 package com.Genesis.SwiftSend.User;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Exception.AccountDisabledException;
+import com.Genesis.SwiftSend.Exception.CustomException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
 import com.Genesis.SwiftSend.Registration.Token.JwtTokenService;
@@ -52,15 +60,23 @@ public class UserService implements IUserService {
 
 	@Override
 	public User registerUser(RegistrationRequest request) {
+
 		Optional<User> user = this.findByEmail(request.email());
 		Optional<User> userByMobile = this.findByMobileNumber(request.mobileNumber());
+		Map<String, Object> errorDetails = new HashMap<>();
 
 		if (user.isPresent()) {
-			throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
+			errorDetails.put("field", "email");
+			errorDetails.put("code", "EMAIL_EXISTS");
+			throw new UserAlreadyExistsException("User with email " + request.email() + " already exists",
+					HttpStatus.BAD_REQUEST, errorDetails);
 		}
+
 		if (userByMobile.isPresent()) {
-			throw new UserAlreadyExistsException(
-					"User with mobile number " + request.mobileNumber() + " is already registered");
+			errorDetails.put("field", "mobile_number");
+			errorDetails.put("code", "MOBILE_NUMBER_EXISTS");
+			throw new UserAlreadyExistsException("User with numnber " + request.mobileNumber() + " already exists",
+					HttpStatus.BAD_REQUEST, errorDetails);
 		}
 		var newUser = new User();
 		newUser.setFullName(request.fullName());
@@ -133,7 +149,7 @@ public class UserService implements IUserService {
 	// authenticate manager will use user details and user details service to
 	// authenticate the logged in user
 	public LoginResponseDto loginUser(String email, String password) {
-
+		Map<String, Object> errorDetails = new HashMap<>();
 		try {
 			Authentication auth = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
@@ -143,7 +159,30 @@ public class UserService implements IUserService {
 			return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
 
 		} catch (AuthenticationException e) {
-			return new LoginResponseDto(null, "");
+			// Handle the exception based on its type
+			if (e instanceof BadCredentialsException) {
+				// Handle invalid username or password
+				errorDetails.put("field", "username or password");
+				errorDetails.put("code", "INVALID_USERNAME");
+				throw new CustomException("Invalid username or password", HttpStatus.BAD_REQUEST, errorDetails);
+
+			} else if (e instanceof LockedException) {
+				// Handle locked account
+				errorDetails.put("code", "ACCOUNT_LOCKED");
+				throw new CustomException("Account is Locked", HttpStatus.BAD_REQUEST, errorDetails);
+			} else if (e instanceof AccountDisabledException) {
+				// Handle disabled account
+				errorDetails.put("code", "ACCOUNT_DISABLED");
+				throw new CustomException("Account is disabled", HttpStatus.BAD_REQUEST, errorDetails);
+			} else if (e instanceof AccountExpiredException) {
+				// Handle expired account
+				errorDetails.put("code", "ACCOUNT_EXPIRED");
+				throw new CustomException("Account is expired", HttpStatus.BAD_REQUEST, errorDetails);
+			} else {
+				// Handle other authentication exceptions
+				errorDetails.put("code", "AUTHENTICATION_FAILED");
+				throw new CustomException("Authentication is failed", HttpStatus.BAD_REQUEST, errorDetails);
+			}
 		}
 	}
 
