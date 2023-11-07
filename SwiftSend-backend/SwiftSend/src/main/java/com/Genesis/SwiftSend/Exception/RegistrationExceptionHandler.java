@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,12 +13,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 /**
  * @author rohan
  *
  */
 @RestControllerAdvice
 public class RegistrationExceptionHandler {
+
+	private final HttpServletRequest httpServletRequest;
+	private final Logger logger = LoggerFactory.getLogger(RegistrationExceptionHandler.class);
+
+	public RegistrationExceptionHandler(HttpServletRequest httpServletRequest) {
+
+		this.httpServletRequest = httpServletRequest;
+	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,6 +48,19 @@ public class RegistrationExceptionHandler {
 		response.put("errorDetails", ex.getErrorDetails());
 		response.put("timestamp", LocalDateTime.now());
 		return new ResponseEntity<>(response, ex.getHttpStatus());
+	}
+
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(CustomJwtValidationException.class)
+	public ResponseEntity<Object> handleCustomJwtValidationException(CustomJwtValidationException ex) {
+		// Extract the error message from the exception
+		String errorMessage = ex.getError().getDescription();
+
+		// You can return a custom response with the error message
+		Map<String, String> errorResponse = new HashMap<>();
+		errorResponse.put("error", errorMessage);
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 	}
 
 	@ExceptionHandler(CustomException.class)

@@ -180,8 +180,8 @@ public class UserService implements IUserService {
 				throw new CustomException("Account is expired", HttpStatus.BAD_REQUEST, errorDetails);
 			} else {
 				// Handle other authentication exceptions
-				errorDetails.put("code", "AUTHENTICATION_FAILED");
-				throw new CustomException("Authentication is failed", HttpStatus.BAD_REQUEST, errorDetails);
+				errorDetails.put("code", "EMAIL_VERIFICATION_FAILED");
+				throw new CustomException("email verification is failed", HttpStatus.BAD_REQUEST, errorDetails);
 			}
 		}
 	}

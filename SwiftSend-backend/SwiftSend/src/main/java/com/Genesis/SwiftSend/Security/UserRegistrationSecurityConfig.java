@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.Genesis.SwiftSend.Registration.Token.CustomJwtDecoder;
 import com.Genesis.SwiftSend.Utils.RSAKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -42,7 +43,9 @@ public class UserRegistrationSecurityConfig {
 	private final RSAKeyProperties keys;
 
 	public UserRegistrationSecurityConfig(RSAKeyProperties keys) {
+		super();
 		this.keys = keys;
+
 	}
 
 	@Bean
@@ -58,20 +61,17 @@ public class UserRegistrationSecurityConfig {
 		return new ProviderManager(daoProvider);
 	}
 
-//	@Bean
-//	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//		return http.cors().and().csrf().disable().authorizeHttpRequests().requestMatchers("/register/**").permitAll()
-//				.and().authorizeHttpRequests().requestMatchers("/users/**").hasAnyAuthority("USER", "ADMIN").and()
-//				.formLogin().and().build();
-//	}
-
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> {
 			auth.requestMatchers("/register/**").permitAll();
 			auth.requestMatchers("/admin/**").hasRole("ADMIN");
 			auth.requestMatchers("/users/**").hasAnyRole("ADMIN", "USER");
+			auth.requestMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security",
+					"/swagger-ui.html", "/webjars/**").permitAll();
 			auth.anyRequest().authenticated();
+
 		});
 
 		http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
@@ -80,9 +80,17 @@ public class UserRegistrationSecurityConfig {
 		return http.build();
 	}
 
+//	@Bean
+//	public JwtDecoder jwtDecoder() {
+//		return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
+//
+//	}
+
+	// decoder uses public keysd to verify and authenticiy of the token
+
 	@Bean
 	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
+		return new CustomJwtDecoder(NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build());
 	}
 
 	@Bean
