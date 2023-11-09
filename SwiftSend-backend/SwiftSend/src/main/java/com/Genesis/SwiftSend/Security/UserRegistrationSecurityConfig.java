@@ -22,8 +22,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.Genesis.SwiftSend.Registration.Token.CustomJwtDecoder;
+import com.Genesis.SwiftSend.Registration.Token.JwtAuthenticationFilter;
 import com.Genesis.SwiftSend.Utils.RSAKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -42,6 +43,10 @@ public class UserRegistrationSecurityConfig {
 
 	private final RSAKeyProperties keys;
 
+	private static final String[] WHITE_LIST_URL = { "/register/**", "/v2/api-docs", "/v3/api-docs/**",
+			"/swagger-resources", "/swagger-resources/**", "/configuration/ui", "/configuration/security",
+			"/swagger-ui/**", "/webjars/**", "/swagger-ui.html" };
+
 	public UserRegistrationSecurityConfig(RSAKeyProperties keys) {
 		super();
 		this.keys = keys;
@@ -51,6 +56,11 @@ public class UserRegistrationSecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
 	}
 
 	@Bean
@@ -65,12 +75,11 @@ public class UserRegistrationSecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> {
-			auth.requestMatchers("/register/**").permitAll();
+			auth.requestMatchers(WHITE_LIST_URL).permitAll();
 			auth.requestMatchers("/admin/**").hasRole("ADMIN");
 			auth.requestMatchers("/users/**").hasAnyRole("ADMIN", "USER");
-			auth.requestMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security",
-					"/swagger-ui.html", "/webjars/**").permitAll();
-			auth.anyRequest().authenticated();
+			auth.anyRequest().authenticated().and().addFilterBefore(jwtAuthenticationFilter(),
+					UsernamePasswordAuthenticationFilter.class);
 
 		});
 
@@ -80,18 +89,18 @@ public class UserRegistrationSecurityConfig {
 		return http.build();
 	}
 
-//	@Bean
-//	public JwtDecoder jwtDecoder() {
-//		return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
-//
-//	}
+	@Bean
+	public JwtDecoder jwtDecoder() {
+		return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
+
+	}
 
 	// decoder uses public keysd to verify and authenticiy of the token
 
-	@Bean
-	public JwtDecoder jwtDecoder() {
-		return new CustomJwtDecoder(NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build());
-	}
+//	@Bean
+//	public JwtDecoder jwtDecoder() {
+//		return new CustomJwtDecoder(NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build());
+//	}
 
 	@Bean
 	public JwtEncoder jwtEncoder() {

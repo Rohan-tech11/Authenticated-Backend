@@ -9,9 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -19,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author rohan
  *
  */
-@RestControllerAdvice
+@ControllerAdvice
 public class RegistrationExceptionHandler {
 
 	private final HttpServletRequest httpServletRequest;
@@ -28,6 +29,17 @@ public class RegistrationExceptionHandler {
 	public RegistrationExceptionHandler(HttpServletRequest httpServletRequest) {
 
 		this.httpServletRequest = httpServletRequest;
+	}
+
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(JwtMissingException.class)
+	@ResponseBody
+	public ResponseEntity<Object> handleJwtMissingException(JwtMissingException ex) {
+		String errorMessage = ex.getMessage();
+		// You can customize the error response as needed, e.g., JSON response
+		Map<String, Object> errorResponse = new HashMap<>();
+		errorResponse.put("error", errorMessage);
+		return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -48,19 +60,6 @@ public class RegistrationExceptionHandler {
 		response.put("errorDetails", ex.getErrorDetails());
 		response.put("timestamp", LocalDateTime.now());
 		return new ResponseEntity<>(response, ex.getHttpStatus());
-	}
-
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	@ExceptionHandler(CustomJwtValidationException.class)
-	public ResponseEntity<Object> handleCustomJwtValidationException(CustomJwtValidationException ex) {
-		// Extract the error message from the exception
-		String errorMessage = ex.getError().getDescription();
-
-		// You can return a custom response with the error message
-		Map<String, String> errorResponse = new HashMap<>();
-		errorResponse.put("error", errorMessage);
-
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 	}
 
 	@ExceptionHandler(CustomException.class)
