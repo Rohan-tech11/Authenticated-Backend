@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/admin")
+@CrossOrigin("*")
 public class AdminController {
 
 	@GetMapping("/test")
