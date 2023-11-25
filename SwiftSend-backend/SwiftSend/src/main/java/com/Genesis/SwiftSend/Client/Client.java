@@ -1,8 +1,7 @@
 /**
- * Created by Rohan
+ * created by @Rohan
  */
-
-package com.Genesis.SwiftSend.User;
+package com.Genesis.SwiftSend.Client;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,21 +24,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * @author Rohan
+ * @author rohan
  *
  */
 @Data
 @AllArgsConstructor
 @Entity
-public class User {
+public class Client {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "user_id")
+	@Column(name = "client_id")
 	@JsonIgnore // Ignore this field during serialization
-	private Integer userId;
+	private Integer clientId;
 
-	private String fullName;
+	private String clientName;
 
 	@NaturalId(mutable = true)
 	@Column(unique = true)
@@ -48,9 +47,6 @@ public class User {
 	@JsonIgnore // Ignore this field during serialization
 	private String password;
 
-//	@JsonIgnore // Ignore this field during serialization
-//	private String role;
-
 	@JsonIgnore // Ignore this field during serialization
 	private boolean isEnabled = false;
 
@@ -58,13 +54,23 @@ public class User {
 	@JsonIgnore // Ignore this field during serialization
 	private String mobileNumber;
 
+	@Column(unique = true)
+	private String businessNumber;
+
+	@Column(unique = true)
+	private String registryID;
+
+	private String registeredOfficeLocation;
+
+	private boolean isAdminApproved;
+
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "user_role_junction", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+	@JoinTable(name = "client_role_junction", joinColumns = { @JoinColumn(name = "client_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "role_id") })
 	private Set<Role> authorities;
 
-	public User() {
+	public Client() {
 		super();
 		authorities = new HashSet<>();
 	}

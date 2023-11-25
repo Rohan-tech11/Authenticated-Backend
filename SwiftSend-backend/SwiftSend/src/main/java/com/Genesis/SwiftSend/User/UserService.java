@@ -24,6 +24,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Client.Client;
+import com.Genesis.SwiftSend.Client.ClientRepository;
 import com.Genesis.SwiftSend.Exception.AccountDisabledException;
 import com.Genesis.SwiftSend.Exception.CustomException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
@@ -36,13 +38,16 @@ import com.Genesis.SwiftSend.Role.Role;
 import com.Genesis.SwiftSend.Role.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Rohan
  *
  */
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService implements IUserService {
 
 	private final UserRepository userRepository;
@@ -50,6 +55,7 @@ public class UserService implements IUserService {
 	private final VerificationTokenRepository tokenRepository;
 	private final RoleRepository roleRepository;
 	private final AuthenticationManager authenticationManager;
+	private final ClientRepository clientRepository;
 
 	private final JwtTokenService JWTtokenService;
 
@@ -62,22 +68,32 @@ public class UserService implements IUserService {
 	public User registerUser(RegistrationRequest request) {
 
 		Optional<User> user = this.findByEmail(request.email());
-		Optional<User> userByMobile = this.findByMobileNumber(request.mobileNumber());
+		Optional<Client> client = clientRepository.findByEmail(request.email());
 		Map<String, Object> errorDetails = new HashMap<>();
 
-		if (user.isPresent()) {
+		if (client.isPresent()) {
 			errorDetails.put("field", "email");
 			errorDetails.put("code", "EMAIL_EXISTS");
-			throw new UserAlreadyExistsException("User with email " + request.email() + " already exists",
+			throw new UserAlreadyExistsException(
+					" A  Swift send client with the same email  exists" + request.email() + " already exists",
 					HttpStatus.BAD_REQUEST, errorDetails);
 		}
 
-		if (userByMobile.isPresent()) {
-			errorDetails.put("field", "mobile_number");
-			errorDetails.put("code", "MOBILE_NUMBER_EXISTS");
-			throw new UserAlreadyExistsException("User with numnber " + request.mobileNumber() + " already exists",
-					HttpStatus.BAD_REQUEST, errorDetails);
+		if (user.isPresent()) {
+			User loggedInUser = user.get();
+			if (loggedInUser.getEmail() != null) {
+				errorDetails.put("field", "email");
+				errorDetails.put("code", "EMAIL_EXISTS");
+				throw new UserAlreadyExistsException("User with email " + request.email() + " already exists",
+						HttpStatus.BAD_REQUEST, errorDetails);
+			} else if (loggedInUser.getMobileNumber() != null) {
+				errorDetails.put("field", "mobile_number");
+				errorDetails.put("code", "MOBILE_NUMBER_EXISTS");
+				throw new UserAlreadyExistsException("User with number " + request.mobileNumber() + " already exists",
+						HttpStatus.BAD_REQUEST, errorDetails);
+			}
 		}
+
 		var newUser = new User();
 		newUser.setFullName(request.fullName());
 		newUser.setEmail(request.email());
@@ -140,7 +156,7 @@ public class UserService implements IUserService {
 		// TODO Auto-generated method stub
 		VerificationToken token = tokenRepository.findByToken(oldToken);
 		var tokenTime = new VerificationToken();// managed state
-		System.out.println("token time is " + token.getExpirationTime());
+		log.info("token expiration time ()" + token.getExpirationTime());
 		token.setToken(UUID.randomUUID().toString());
 		token.setExpirationTime(token.getTokenExpirationTime());
 		return tokenRepository.save(token);
@@ -150,22 +166,44 @@ public class UserService implements IUserService {
 	// authenticate the logged in user
 	public LoginResponseDto loginUser(String email, String password) {
 		Map<String, Object> errorDetails = new HashMap<>();
-		try {
-			Authentication auth = authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
+		Optional<User> theUser = userRepository.findByEmail(email);
+
+		try {
+			Authentication auth;
+			// When you call authenticate on it, the ProviderManager will iterate through
+			// its list of providers
+			// and delegate the authentication to the first provider that supports the given
+			// Authentication type.
+			if (!theUser.isPresent()) {
+				// Perform client authentication
+				// user attempts to authenticate by providing a username and password, these
+				// credentials are usually encapsulated in a UsernamePasswordAuthenticationToken
+				// object.
+				auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			} else {
+				// Perform user authentication
+				auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			}
+			log.info(auth + "authentication object");
 			String token = JWTtokenService.generateJwt(auth);
 
-			return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
+			if (!theUser.isPresent()) {
+				// Handle client login response
+				return new LoginResponseDto(clientRepository.findByEmail(email).get().getEmail(), token);
+			} else {
+				// Handle user login response
+				return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
+			}
 
 		} catch (AuthenticationException e) {
-			// Handle the exception based on its type
+			// Handle authentication exceptions based on type
+
 			if (e instanceof BadCredentialsException) {
 				// Handle invalid username or password
 				errorDetails.put("field", "username or password");
-				errorDetails.put("code", "INVALID_USERNAME");
-				throw new CustomException("Invalid username or password", HttpStatus.BAD_REQUEST, errorDetails);
-
+				errorDetails.put("code", "INVALID_CREDENTIALS");
+				throw new CustomException("Invalid credentials", HttpStatus.BAD_REQUEST, errorDetails);
 			} else if (e instanceof LockedException) {
 				// Handle locked account
 				errorDetails.put("code", "ACCOUNT_LOCKED");
@@ -180,8 +218,8 @@ public class UserService implements IUserService {
 				throw new CustomException("Account is expired", HttpStatus.BAD_REQUEST, errorDetails);
 			} else {
 				// Handle other authentication exceptions
-				errorDetails.put("code", "EMAIL_VERIFICATION_FAILED");
-				throw new CustomException("email verification is failed", HttpStatus.BAD_REQUEST, errorDetails);
+				errorDetails.put("code", "EMAIL_VERIFICATIONFAILED");
+				throw new CustomException("Email Verification  failed", HttpStatus.BAD_REQUEST, errorDetails);
 			}
 		}
 	}

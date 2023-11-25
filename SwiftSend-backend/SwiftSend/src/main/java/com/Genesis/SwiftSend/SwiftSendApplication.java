@@ -32,6 +32,7 @@ public class SwiftSendApplication {
 				return;
 			Role adminRole = roleRepository.save(new Role("ADMIN"));
 			roleRepository.save(new Role("USER"));
+			roleRepository.save(new Role("CLIENT"));
 			Role userRole = roleRepository.findByAuthority("USER").get();
 			log.info("adminrole " + adminRole + " " + userRole);
 

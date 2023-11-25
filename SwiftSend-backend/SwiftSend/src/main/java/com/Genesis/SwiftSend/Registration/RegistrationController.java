@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Genesis.SwiftSend.Client.Client;
+import com.Genesis.SwiftSend.Client.ClientService;
 import com.Genesis.SwiftSend.Event.RegistrationCompleteEvent;
 import com.Genesis.SwiftSend.Event.Listener.RegistrationCompleteEventListener;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
@@ -37,24 +39,34 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/register")
+@RequestMapping("/api/register")
 @Slf4j
 @CrossOrigin("*")
 public class RegistrationController {
 
 	private final UserService userService;
+	private final ClientService clientService;
 	private final ApplicationEventPublisher publisher;
 	private final VerificationTokenRepository tokenRepository;
-	private final HttpServletRequest servletRequest;
 	private final RegistrationCompleteEventListener eventListener;
 
-	@PostMapping
+	@PostMapping("/user")
 	public ResponseEntity<Object> registerUser(@RequestBody RegistrationRequest registrationRequest,
 			final HttpServletRequest request) {
 		User user = userService.registerUser(registrationRequest);
 		publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
 		return ResponseHandler.responseBuilder("Success!  Please, check your email for to complete your registration",
 				HttpStatus.CREATED, user);
+	}
+
+	@PostMapping("/client")
+	public ResponseEntity<Object> registerClient(@RequestBody RegistrationRequestClient registrationRequest,
+			final HttpServletRequest request) {
+		Client client = clientService.registerClient(registrationRequest);
+		publisher.publishEvent(new RegistrationCompleteEvent(client, applicationUrl(request)));
+		return ResponseHandler.responseBuilder(
+				"Success!  Please, check your client-email account  to complete your registration", HttpStatus.CREATED,
+				client);
 	}
 
 	/*
@@ -85,20 +97,38 @@ public class RegistrationController {
 	@GetMapping("/verifyEmail")
 	public ResponseEntity<Object> verifyEmail(@RequestParam("token") String token) {
 		VerificationToken theToken = tokenRepository.findByToken(token);
-		if (theToken.getUser().isEnabled()) {
-			return ResponseEntity.ok("This account has already been verified. Please <a href=\"/login\">log in</a>.");
-		}
 
-		String verificationResult = userService.validateToken(token);
+		if (theToken != null) { // null check
+			User user = theToken.getUser();
+			Client client = theToken.getClient();
 
-		if (verificationResult.equalsIgnoreCase("valid")) {
-			return ResponseEntity
-					.ok("Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
-		} else {
+			if ((user != null && user.isEnabled()) || (client != null && client.isEnabled())) {
+				return ResponseEntity
+						.ok("This account has already been verified. Please <a href=\"/login\">log in</a>.");
+			}
+
+			if (user != null) {
+				String verificationResultUser = userService.validateToken(token);
+				if (verificationResultUser.equalsIgnoreCase("valid")) {
+					return ResponseEntity.ok(
+							"Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
+				}
+			}
+
+			if (client != null) {
+				String verificationResultClient = clientService.validateToken(token);
+				if (verificationResultClient.equalsIgnoreCase("valid")) {
+					return ResponseEntity.ok(
+							"Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
+				}
+			}
+
 			String requestUrl = "/register/resend-verification-token?token=" + token;
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					"Token has expired. Please <a href=\"" + requestUrl + "\">request a new verification link</a>.");
 		}
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token.");
 	}
 
 	@GetMapping("/resend-verification-token")
@@ -106,15 +136,32 @@ public class RegistrationController {
 			HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
 		VerificationToken verificationToken = userService.generateNewVerificationToken(oldToken.toString());
 		log.info("token object " + verificationToken);
-		User theUser = verificationToken.getUser();
-		resendVerificationTokenEmail(theUser, applicationUrl(request), verificationToken);
-		return ResponseHandler.responseBuilder("A new verification token has been sent", HttpStatus.CREATED);
+		if (verificationToken.getUser() != null) {
+			User theUser = verificationToken.getUser();
+			resendVerificationTokenEmail(theUser, applicationUrl(request), verificationToken);
+			return ResponseHandler.responseBuilder("A new verification token has been sent", HttpStatus.CREATED);
+		} else if (verificationToken.getClient() != null) {
+			Client client = verificationToken.getClient();
+			resendVerificationTokenEmail(client, applicationUrl(request), verificationToken);
+			return ResponseHandler.responseBuilder("A new verification token has been sent", HttpStatus.CREATED);
+
+		}
+		return ResponseHandler.responseBuilder("Something went wrong while generating the new token",
+				HttpStatus.BAD_REQUEST);
+
 	}
 
 	private void resendVerificationTokenEmail(User theUser, String applicationUrl, VerificationToken token)
 			throws MessagingException, UnsupportedEncodingException {
 		String url = applicationUrl + "/register/verifyEmail?token=" + token.getToken();
 		eventListener.sendVerificationEmail(url);
+		log.info("Click the link to verify your registration :  {}", url);
+	}
+
+	private void resendVerificationTokenEmail(Client theClient, String applicationUrl, VerificationToken token)
+			throws MessagingException, UnsupportedEncodingException {
+		String url = applicationUrl + "/register/verifyEmail?token=" + token.getToken();
+		eventListener.sendVerificationEmailtoClient(url);
 		log.info("Click the link to verify your registration :  {}", url);
 	}
 

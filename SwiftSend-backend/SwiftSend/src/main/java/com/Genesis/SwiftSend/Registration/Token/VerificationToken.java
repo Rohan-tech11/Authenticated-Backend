@@ -7,6 +7,7 @@ package com.Genesis.SwiftSend.Registration.Token;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.Genesis.SwiftSend.Client.Client;
 import com.Genesis.SwiftSend.User.User;
 
 import jakarta.persistence.Entity;
@@ -41,10 +42,21 @@ public class VerificationToken {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@OneToOne
+	@JoinColumn(name = "client_id")
+	private Client client;
+
 	public VerificationToken(String token, User user) {
 		super();
 		this.token = token;
 		this.user = user;
+		this.expirationTime = this.getTokenExpirationTime();
+	}
+
+	public VerificationToken(String token, Client client) {
+		super();
+		this.token = token;
+		this.client = client;
 		this.expirationTime = this.getTokenExpirationTime();
 	}
 

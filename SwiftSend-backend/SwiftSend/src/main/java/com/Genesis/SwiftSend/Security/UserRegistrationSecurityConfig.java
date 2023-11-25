@@ -4,8 +4,10 @@
 
 package com.Genesis.SwiftSend.Security;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -24,7 +26,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.Genesis.SwiftSend.Client.ClientRepository;
 import com.Genesis.SwiftSend.Registration.Token.JwtAuthenticationFilter;
+import com.Genesis.SwiftSend.User.UserRepository;
 import com.Genesis.SwiftSend.Utils.RSAKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -41,17 +45,27 @@ import com.nimbusds.jose.proc.SecurityContext;
 @EnableWebSecurity
 public class UserRegistrationSecurityConfig {
 
+	private final UserDetailsService userDetailsService;
+	private final UserDetailsService clientDetailsService; // Separate UserDetailsService for clients
+	private final ClientRepository clientRepository;
+	private final UserRepository userRepository;
+
 	private final RSAKeyProperties keys;
 
-	private static final String[] WHITE_LIST_URL = { "/register/**", "/v2/api-docs", "/v3/api-docs/**",
+	public UserRegistrationSecurityConfig(RSAKeyProperties keys,
+			@Qualifier("userRegistrationDetailsService") @Lazy UserDetailsService userDetailsService,
+			@Qualifier("clientRegistrationDetailsService") @Lazy UserDetailsService clientDetailsService,
+			ClientRepository clientRepository, UserRepository userRepository) {
+		this.keys = keys;
+		this.userDetailsService = userDetailsService;
+		this.clientDetailsService = clientDetailsService;
+		this.clientRepository = clientRepository;
+		this.userRepository = userRepository;
+	}
+
+	private static final String[] WHITE_LIST_URL = { "/api/register/**", "/v2/api-docs", "/v3/api-docs/**",
 			"/swagger-resources", "/swagger-resources/**", "/configuration/ui", "/configuration/security",
 			"/swagger-ui/**", "/webjars/**", "/swagger-ui.html" };
-
-	public UserRegistrationSecurityConfig(RSAKeyProperties keys) {
-		super();
-		this.keys = keys;
-
-	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -63,12 +77,27 @@ public class UserRegistrationSecurityConfig {
 		return new JwtAuthenticationFilter();
 	}
 
+	// When you define a method annotated with @Bean and returning an
+	// AuthenticationManager, Spring will automatically call that method to create
+	// an instance of AuthenticationManager when needed.
 	@Bean
-	public AuthenticationManager authManager(UserDetailsService userDetailsService) {
+	@Lazy
+	public AuthenticationManager authenticationManagerBean() throws Exception {
 		DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
 		daoProvider.setUserDetailsService(userDetailsService);
 		daoProvider.setPasswordEncoder(passwordEncoder());
-		return new ProviderManager(daoProvider);
+
+		DaoAuthenticationProvider clientDaoProvider = new DaoAuthenticationProvider();
+		clientDaoProvider.setUserDetailsService(clientDetailsService);
+		clientDaoProvider.setPasswordEncoder(passwordEncoder());
+//		///**
+//		 * Attempts to authenticate the passed {@link Authentication} object.
+//		 * <p>
+//		 * The list of {@link AuthenticationProvider}s will be successively tried until an
+//		 * <code>AuthenticationProvider</code> indicates it is capable of authenticating the
+//		 * type of <code>Authentication</code> object passed. Authentication will then be
+//		 * attemp
+		return new ProviderManager(daoProvider, clientDaoProvider);
 	}
 
 	@Bean
@@ -76,8 +105,8 @@ public class UserRegistrationSecurityConfig {
 
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> {
 			auth.requestMatchers(WHITE_LIST_URL).permitAll();
-			auth.requestMatchers("/admin/**").hasRole("ADMIN");
-			auth.requestMatchers("/users/**").hasAnyRole("ADMIN", "USER");
+			auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+			auth.requestMatchers("/api/users/**").hasAnyRole("ADMIN", "USER");
 			auth.anyRequest().authenticated().and().addFilterBefore(jwtAuthenticationFilter(),
 					UsernamePasswordAuthenticationFilter.class);
 
@@ -117,6 +146,16 @@ public class UserRegistrationSecurityConfig {
 		JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
 		jwtConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 		return jwtConverter;
+	}
+
+	@Bean("userRegistrationDetailsService")
+	public UserDetailsService userDetailsService() {
+		return new UserRegistrationDetailsService(userRepository);
+	}
+
+	@Bean("clientRegistrationDetailsService")
+	public UserDetailsService clientDetailsService() {
+		return new ClientRegistrationDetailsService(clientRepository);
 	}
 
 }

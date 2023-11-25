@@ -23,13 +23,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String requestURI = request.getRequestURI();
 
 		// Check if the request path is not related to registration or login
-		if (!requestURI.startsWith("/register") && !requestURI.startsWith("/login")
+		if (!requestURI.startsWith("/api/register") && !requestURI.startsWith("/api/login")
 				&& !requestURI.startsWith("/swagger-ui") && !requestURI.startsWith("/v3/api-docs")) {
 			// Verify the JWT as before
 			String jwt = extractJwtFromRequest(request);
 			String authorizationHeader = request.getHeader("Authorization");
 			log.info("authorized header is" + authorizationHeader);
 			log.info("generated jwt token is" + jwt);
+			// the filter throws the exception before it reaches the
+			// dispatcherServlet(controllers
+			// ,rest controller advice,so we used http servlet response to build the
+			// exception
 			if (jwt == null || jwt.isEmpty()) {
 				response.setContentType("application/json");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
