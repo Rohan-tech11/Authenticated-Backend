@@ -47,7 +47,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 		// 2. Create a verification token for the user
 		String verificationToken = UUID.randomUUID().toString();
 		// 4 Build the verification url to be sent to the user
-		String url = event.getApplicationUrl() + "/register/verifyEmail?token=" + verificationToken;
+		String url = event.getApplicationUrl() + "/api/register/verifyEmail?token=" + verificationToken;
 		// 5. Send the email.
 
 		try {
@@ -87,7 +87,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 		String senderName = "SwiftSend Registration  Client Portal Service";
 		String mailContent = "<p> Hi, " + theClient.getClientName() + ", </p>" + "<p>Thank you for registering with us,"
 				+ "" + "Please, follow the link below to complete your registration.</p>" + "<a href=\"" + url
-				+ "\">Verify your email to activate your account</a>"
+				+ "\">Verify your email to activate your account, you must verify your email to  get approval from admim</a>"
 				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();
 		var messageHelper = new MimeMessageHelper(message);

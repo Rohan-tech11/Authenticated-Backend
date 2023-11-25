@@ -123,7 +123,7 @@ public class RegistrationController {
 				}
 			}
 
-			String requestUrl = "/register/resend-verification-token?token=" + token;
+			String requestUrl = "/api/register/resend-verification-token?token=" + token;
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					"Token has expired. Please <a href=\"" + requestUrl + "\">request a new verification link</a>.");
 		}

@@ -35,7 +35,6 @@ public class Client {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "client_id")
-	@JsonIgnore // Ignore this field during serialization
 	private Integer clientId;
 
 	private String clientName;
@@ -64,7 +63,6 @@ public class Client {
 
 	private boolean isAdminApproved;
 
-	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "client_role_junction", joinColumns = { @JoinColumn(name = "client_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "role_id") })

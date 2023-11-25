@@ -112,6 +112,7 @@ public class UserRegistrationSecurityConfig {
 
 		});
 
+		// converter for checking the roles to access endpoints
 		http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

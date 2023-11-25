@@ -58,7 +58,6 @@ public class User {
 	@JsonIgnore // Ignore this field during serialization
 	private String mobileNumber;
 
-	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_role_junction", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "role_id") })

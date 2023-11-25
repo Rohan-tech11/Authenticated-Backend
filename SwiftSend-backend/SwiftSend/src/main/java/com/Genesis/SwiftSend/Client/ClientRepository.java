@@ -3,6 +3,7 @@
  */
 package com.Genesis.SwiftSend.Client;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,5 +33,14 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 	 * @return
 	 */
 	Optional<Client> findByRegistryID(String registryID);
+
+	/*
+	 * // Spring Data JPA provides // a powerful // and convenient // way to //
+	 * define queries // based on // method names, reducing // the need for //
+	 * manual query // writing
+	 */
+	List<Client> findByIsAdminApprovedFalseAndIsEnabledTrue();
+
+	List<Client> findByIsAdminApprovedTrueAndIsEnabledTrue();
 
 }
