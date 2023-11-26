@@ -3,6 +3,10 @@
  */
 package com.Genesis.SwiftSend.ResponseHandler;
 
+import java.util.Collection;
+
+import org.springframework.security.core.GrantedAuthority;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,4 +22,6 @@ public class LoginResponseDto {
 
 	private String userName;
 	private String jwt;
+	private Collection<? extends GrantedAuthority> authorities;
+
 }

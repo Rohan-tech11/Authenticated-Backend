@@ -190,10 +190,12 @@ public class UserService implements IUserService {
 
 			if (!theUser.isPresent()) {
 				// Handle client login response
-				return new LoginResponseDto(clientRepository.findByEmail(email).get().getEmail(), token);
+				return new LoginResponseDto(clientRepository.findByEmail(email).get().getEmail(), token,
+						auth.getAuthorities());
 			} else {
 				// Handle user login response
-				return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
+				return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token,
+						auth.getAuthorities());
 			}
 
 		} catch (AuthenticationException e) {

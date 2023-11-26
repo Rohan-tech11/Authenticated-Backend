@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import com.Genesis.SwiftSend.Registration.Token.JwtTokenService;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 import com.Genesis.SwiftSend.Registration.Token.VerificationTokenRepository;
 import com.Genesis.SwiftSend.ResponseHandler.LoginResponseDto;
+import com.Genesis.SwiftSend.ResponseHandler.ResponseHandler;
 import com.Genesis.SwiftSend.Role.Role;
 import com.Genesis.SwiftSend.Role.RoleRepository;
 import com.Genesis.SwiftSend.User.User;
@@ -43,6 +45,7 @@ public class ClientService implements IclientService {
 	private final VerificationTokenRepository tokenRepository;
 	private final RoleRepository roleRepository;
 	private final AuthenticationManager authenticationManager;
+	private final ClientServicesRepository clientServiceRepo;
 
 	private final JwtTokenService JWTtokenService;
 
@@ -170,4 +173,30 @@ public class ClientService implements IclientService {
 		return clientRepo.findByRegistryID(registryID);
 	}
 
+	@Override
+	public ResponseEntity<Object> addService(ClientServiceRequest serviceRequest, String email) {
+		// Check if the client is approved by admin
+		Optional<Client> loggedInClient = clientRepo.findByEmail(email);
+
+		if (loggedInClient.isPresent() && loggedInClient.get().isAdminApproved()) {
+			// Client is approved, proceed to add the service
+			Client client = loggedInClient.get();
+
+			// Create and save the service entity
+			ClientServices service = new ClientServices();
+			service.setClient(client);
+			service.setServiceName(serviceRequest.serviceName());
+			service.setServiceDescription(serviceRequest.serviceDescription());
+			service.setDeliveryTimeDays(serviceRequest.deliveryTimeDays());
+			service.setPrice(serviceRequest.price());
+
+			ClientServices NewlyAddedservice = clientServiceRepo.save(service);
+			return ResponseHandler.responseBuilder("Service added Successfully", HttpStatus.CREATED, NewlyAddedservice);
+		} else {
+			// Client is not approved, throw an exception
+			return ResponseHandler.responseBuilder("Client is not approved by admin. Cannot add service.",
+					HttpStatus.FORBIDDEN);
+		}
+
+	}
 }
