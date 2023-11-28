@@ -26,13 +26,12 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 	 * @param businessNumber
 	 * @return
 	 */
-	Optional<Client> findByBusinessNumber(String businessNumber);
+	Optional<Client> findByBusinessRegistryId(String businessNumber);
 
 	/**
 	 * @param registryID
 	 * @return
 	 */
-	Optional<Client> findByRegistryID(String registryID);
 
 	/*
 	 * // Spring Data JPA provides // a powerful // and convenient // way to //

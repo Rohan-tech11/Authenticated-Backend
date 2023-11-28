@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import com.Genesis.SwiftSend.Client.Client;
 import com.Genesis.SwiftSend.Client.ClientRepository;
+import com.Genesis.SwiftSend.Client.ClientServices;
+import com.Genesis.SwiftSend.Client.ClientServicesRepository;
 import com.Genesis.SwiftSend.Exception.AccountDisabledException;
 import com.Genesis.SwiftSend.Exception.CustomException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
@@ -56,6 +58,7 @@ public class UserService implements IUserService {
 	private final RoleRepository roleRepository;
 	private final AuthenticationManager authenticationManager;
 	private final ClientRepository clientRepository;
+	private final ClientServicesRepository clientServicesRepository;
 
 	private final JwtTokenService JWTtokenService;
 
@@ -224,6 +227,12 @@ public class UserService implements IUserService {
 				throw new CustomException("Email Verification  failed", HttpStatus.BAD_REQUEST, errorDetails);
 			}
 		}
+	}
+
+	@Override
+	public List<ClientServices> getAllClientServices() {
+		// TODO Auto-generated method stub
+		return clientServicesRepository.findAll();
 	}
 
 }

@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
  * @author rohan
  *
  */
+
 @Service
 @RequiredArgsConstructor
 public class ClientService implements IclientService {
@@ -79,22 +80,21 @@ public class ClientService implements IclientService {
 				errorDetails.put("code", "MOBILE_NUMBER_EXISTS");
 				throw new UserAlreadyExistsException("Client with number " + request.mobileNumber() + " already exists",
 						HttpStatus.BAD_REQUEST, errorDetails);
-			} else if (loggedInClient.getBusinessNumber() != null || loggedInClient.getRegistryID() != null) {
-				errorDetails.put("field", "Business number or Registry Id");
-				errorDetails.put("code", "Business number or Registry Id Exists");
-				throw new UserAlreadyExistsException("Client with  Business Id or Registry Id already exists",
+			} else if (loggedInClient.getBusinessRegistryId() != null) {
+				errorDetails.put("field", "Business Registry Id");
+				errorDetails.put("code", "Busines  Registry Id Exists");
+				throw new UserAlreadyExistsException("Client with  Business Registry Id already exists",
 						HttpStatus.BAD_REQUEST, errorDetails);
 			}
 		}
 
 		var newClient = new Client();
-		newClient.setClientName(request.clientName());
+		newClient.setBusinessName(request.businessName());
 		newClient.setEmail(request.email());
 		newClient.setPassword(passwordEncoder.encode(request.password()));
 		newClient.setMobileNumber(request.mobileNumber());
 		newClient.setAdminApproved(false);
-		newClient.setBusinessNumber(request.businessNumber());
-		newClient.setRegistryID(request.registryId());
+		newClient.setBusinessRegistryId(request.businessRegistryId());
 		newClient.setRegisteredOfficeLocation(request.registeredOfficeLocation());
 
 		Role clientRole = roleRepository.findByAuthority("CLIENT").get();
@@ -164,13 +164,7 @@ public class ClientService implements IclientService {
 	@Override
 	public Optional<Client> findByBusinessNumber(String businessNumber) {
 		// TODO Auto-generated method stub
-		return clientRepo.findByBusinessNumber(businessNumber);
-	}
-
-	@Override
-	public Optional<Client> findByRegistryID(String registryID) {
-		// TODO Auto-generated method stub
-		return clientRepo.findByRegistryID(registryID);
+		return clientRepo.findByBusinessRegistryId(businessNumber);
 	}
 
 	@Override

@@ -37,7 +37,7 @@ public class Client {
 	@Column(name = "client_id")
 	private Integer clientId;
 
-	private String clientName;
+	private String businessName;
 
 	@NaturalId(mutable = true)
 	@Column(unique = true)
@@ -54,10 +54,7 @@ public class Client {
 	private String mobileNumber;
 
 	@Column(unique = true)
-	private String businessNumber;
-
-	@Column(unique = true)
-	private String registryID;
+	private String businessRegistryId;
 
 	private String registeredOfficeLocation;
 

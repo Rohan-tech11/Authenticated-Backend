@@ -85,8 +85,9 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 	public void sendVerificationEmailtoClient(String url) throws MessagingException, UnsupportedEncodingException {
 		String subject = "Email Verification for the Cllient";
 		String senderName = "SwiftSend Registration  Client Portal Service";
-		String mailContent = "<p> Hi, " + theClient.getClientName() + ", </p>" + "<p>Thank you for registering with us,"
-				+ "" + "Please, follow the link below to complete your registration.</p>" + "<a href=\"" + url
+		String mailContent = "<p> Hi, " + theClient.getBusinessName() + ", </p>"
+				+ "<p>Thank you for registering with us," + ""
+				+ "Please, follow the link below to complete your registration.</p>" + "<a href=\"" + url
 				+ "\">Verify your email to activate your account, you must verify your email to  get approval from admim</a>"
 				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();

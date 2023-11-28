@@ -7,8 +7,8 @@ package com.Genesis.SwiftSend.Registration;
  * @author rohan
  *
  */
-public record RegistrationRequestClient(String clientName, String email, String mobileNumber, String password,
-		String businessNumber, String registryId, String registeredOfficeLocation
+public record RegistrationRequestClient(String businessName, String email, String mobileNumber, String password,
+		String businessRegistryId, String registeredOfficeLocation
 
 ) {
 

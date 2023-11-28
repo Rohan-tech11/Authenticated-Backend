@@ -28,8 +28,6 @@ public interface IclientService {
 
 	Optional<Client> findByBusinessNumber(String businessNumber);
 
-	Optional<Client> findByRegistryID(String registryID);
-
 	void saveClientVerificationToken(Client theClient, String verificationToken);
 
 	String validateToken(String theToken);

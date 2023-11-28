@@ -7,6 +7,7 @@ package com.Genesis.SwiftSend.User;
 import java.util.List;
 import java.util.Optional;
 
+import com.Genesis.SwiftSend.Client.ClientServices;
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
 import com.Genesis.SwiftSend.Registration.Token.VerificationToken;
 import com.Genesis.SwiftSend.ResponseHandler.LoginResponseDto;
@@ -31,5 +32,7 @@ public interface IUserService {
 	VerificationToken generateNewVerificationToken(String oldToken);
 
 	LoginResponseDto loginUser(String email, String password);
+
+	List<ClientServices> getAllClientServices();
 
 }
