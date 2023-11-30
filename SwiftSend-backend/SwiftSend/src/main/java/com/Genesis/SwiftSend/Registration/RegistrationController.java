@@ -153,14 +153,14 @@ public class RegistrationController {
 
 	private void resendVerificationTokenEmail(User theUser, String applicationUrl, VerificationToken token)
 			throws MessagingException, UnsupportedEncodingException {
-		String url = applicationUrl + "/register/verifyEmail?token=" + token.getToken();
+		String url = applicationUrl + "/api/register/verifyEmail?token=" + token.getToken();
 		eventListener.sendVerificationEmail(url);
 		log.info("Click the link to verify your registration :  {}", url);
 	}
 
 	private void resendVerificationTokenEmail(Client theClient, String applicationUrl, VerificationToken token)
 			throws MessagingException, UnsupportedEncodingException {
-		String url = applicationUrl + "/register/verifyEmail?token=" + token.getToken();
+		String url = applicationUrl + "/api/register/verifyEmail?token=" + token.getToken();
 		eventListener.sendVerificationEmailtoClient(url);
 		log.info("Click the link to verify your registration :  {}", url);
 	}

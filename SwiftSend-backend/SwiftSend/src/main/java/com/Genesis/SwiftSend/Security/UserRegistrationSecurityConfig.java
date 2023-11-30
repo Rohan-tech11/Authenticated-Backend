@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,6 +26,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import com.Genesis.SwiftSend.Client.ClientRepository;
 import com.Genesis.SwiftSend.Registration.Token.JwtAuthenticationFilter;
@@ -73,6 +77,21 @@ public class UserRegistrationSecurityConfig {
 	}
 
 	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.addAllowedOrigin("*"); // TODO: Specify the allowed origin(s) for production
+		config.addAllowedHeader("*");
+		config.addAllowedMethod(HttpMethod.OPTIONS.name());
+		config.addAllowedMethod(HttpMethod.GET.name());
+		config.addAllowedMethod(HttpMethod.POST.name());
+		config.addAllowedMethod(HttpMethod.PUT.name());
+		config.addAllowedMethod(HttpMethod.DELETE.name());
+		source.registerCorsConfiguration("/**", config);
+		return new CorsFilter(source);
+	}
+
+	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
 		return new JwtAuthenticationFilter();
 	}
@@ -102,7 +121,8 @@ public class UserRegistrationSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+		http.addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.cors(cors -> cors.disable());
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> {
 			auth.requestMatchers(WHITE_LIST_URL).permitAll();
 			auth.requestMatchers("/api/admin/**").hasRole("ADMIN");

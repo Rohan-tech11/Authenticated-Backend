@@ -1,9 +1,5 @@
 package com.Genesis.SwiftSend.ResponseHandler;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -11,24 +7,17 @@ import org.springframework.http.ResponseEntity;
  * @author rohan
  *
  */
+
 public class ResponseHandler {
 
 	public static ResponseEntity<Object> responseBuilder(String message, HttpStatus httpStatus, Object responseObject) {
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", message);
-		response.put("httpStatus", httpStatus);
-		response.put("data", responseObject);
-		response.put("timestamp", LocalDateTime.now());
-
-		return new ResponseEntity<>(response, httpStatus);
+		CustomResponse customResponse = new CustomResponse(message, httpStatus, responseObject);
+		return new ResponseEntity<>(customResponse, httpStatus);
 	}
 
 	public static ResponseEntity<Object> responseBuilder(String message, HttpStatus httpStatus) {
-		Map<String, Object> response = new HashMap<>();
-		response.put("message", message);
-		response.put("httpStatus", httpStatus);
-		response.put("timestamp", LocalDateTime.now());
+		CustomResponse customResponse = new CustomResponse(message, httpStatus);
 
-		return new ResponseEntity<>(response, httpStatus);
+		return new ResponseEntity<>(customResponse, httpStatus);
 	}
 }
