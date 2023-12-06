@@ -206,4 +206,17 @@ public class ClientService implements IclientService {
 		}
 
 	}
+
+	@Override
+	public boolean isAdminApproved(String clientEmail) {
+		// TODO Auto-generated method stub
+		Optional<Client> client = clientRepo.findByEmail(clientEmail);
+		boolean adminApproved = false;
+		if (client.isPresent()) {
+			adminApproved = client.get().isAdminApproved();
+			return adminApproved;
+		} else {
+			return adminApproved;
+		}
+	}
 }

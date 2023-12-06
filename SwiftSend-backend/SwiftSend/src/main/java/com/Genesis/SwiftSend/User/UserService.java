@@ -188,7 +188,8 @@ public class UserService implements IUserService {
 				// Perform user authentication
 				auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 			}
-			log.info("authentication object type and principal" + auth);
+			Object principal = auth.getPrincipal();
+			log.info("Principal type while login: " + principal.getClass().getName());
 			String token = JWTtokenService.generateJwt(auth);
 
 			if (!theUser.isPresent()) {

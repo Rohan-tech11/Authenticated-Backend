@@ -54,6 +54,7 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 	 * @param mobileNumber
 	 * @return
 	 */
+	// do the operations on all db rows
 	boolean existsByMobileNumber(String mobileNumber);
 
 	/**
@@ -61,4 +62,8 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 	 */
 	List<Client> findByIsEnabledTrue();
 
+	/**
+	 * @param clientEmail
+	 * @return
+	 */
 }

@@ -42,4 +42,6 @@ public interface IclientService {
 	 */
 	ResponseEntity<Object> addService(ClientServiceRequest serviceRequest, String email);
 
+	boolean isAdminApproved(String clientEmail);
+
 }
