@@ -193,7 +193,8 @@ public class UserService implements IUserService {
 
 			if (!theUser.isPresent()) {
 				// Handle client login response
-				return new LoginResponseDto(clientRepository.findByEmail(email).get().getEmail(), token);
+				Client client = clientRepository.findByEmail(email).get();
+				return new LoginResponseDto(client.getEmail(), token, client.isAdminApproved());
 			} else {
 				// Handle user login response
 				return new LoginResponseDto(userRepository.findByEmail(email).get().getEmail(), token);
