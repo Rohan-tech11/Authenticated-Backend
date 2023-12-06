@@ -41,9 +41,27 @@ public class AdminController {
 	public ResponseEntity<Object> getAllClientAccounts() {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		List<Client> allClientAccounts = adminService.getAllClientAccounts();
-		data.put("data", allClientAccounts);
-		return ResponseHandler.responseBuilder(" fetched all approved and unaproved client accounts", HttpStatus.OK,
-				data);
+		if (allClientAccounts != null) {
+			data.put("data", allClientAccounts);
+			return ResponseHandler.responseBuilder(" fetched all approved and unaproved client accounts", HttpStatus.OK,
+					data);
+		} else {
+			return ResponseHandler.responseBuilder(" No approved and unaproved client accounts", HttpStatus.OK);
+		}
+
+	}
+
+	@GetMapping("/getAllRegisteredClientAccounts")
+	public ResponseEntity<Object> getAllRegisterdClientAccounts() {
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		List<Client> allClientAccounts = adminService.getAllRegisteredClientAccounts();
+		if (allClientAccounts != null) {
+			data.put("data", allClientAccounts);
+			return ResponseHandler.responseBuilder(" fetched all registered client accounts", HttpStatus.OK, data);
+		} else {
+			return ResponseHandler.responseBuilder(" No registered client accounts", HttpStatus.OK);
+		}
+
 	}
 
 	@GetMapping("/getAllUnapprovedClientAccounts")
@@ -55,7 +73,7 @@ public class AdminController {
 			data.put("data", unapprovedClientAccounts);
 			return ResponseHandler.responseBuilder("Fetched all unapproved client accounts", HttpStatus.OK, data);
 		} else {
-			return ResponseHandler.responseBuilder("No unapproved client accounts found", HttpStatus.NOT_FOUND);
+			return ResponseHandler.responseBuilder("No unapproved client accounts found", HttpStatus.OK);
 		}
 	}
 
@@ -68,7 +86,20 @@ public class AdminController {
 			data.put("data", unapprovedClientAccounts);
 			return ResponseHandler.responseBuilder("Fetched all approved client accounts", HttpStatus.OK, data);
 		} else {
-			return ResponseHandler.responseBuilder("No approved client accounts found", HttpStatus.NOT_FOUND);
+			return ResponseHandler.responseBuilder("No approved client accounts found", HttpStatus.OK);
+		}
+	}
+
+	@GetMapping("/getAllUnVerifiedClientAccounts")
+	public ResponseEntity<Object> getAllaUnVerifiedClientAccounts() {
+		HashMap<String, Object> data = new HashMap<>();
+		List<Client> unapprovedClientAccounts = adminService.getAllUnVerifiedClientAccounts();
+
+		if (unapprovedClientAccounts != null && !unapprovedClientAccounts.isEmpty()) {
+			data.put("data", unapprovedClientAccounts);
+			return ResponseHandler.responseBuilder("Fetched all un verified client accounts", HttpStatus.OK, data);
+		} else {
+			return ResponseHandler.responseBuilder("No unverified client accounts found", HttpStatus.OK);
 		}
 	}
 

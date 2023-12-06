@@ -32,4 +32,18 @@ public interface IAdminService {
 	 * @return
 	 */
 	ResponseEntity<Object> approveClientAccount(Integer clientId);
+
+	/**
+	 * @return
+	 */
+	List<Client> getAllUnVerifiedClientAccounts();
+
+	/**
+	 * @return
+	 */
+	List<Client> getAllRegisteredClientAccounts();
+
+	/**
+	 * @return
+	 */
 }

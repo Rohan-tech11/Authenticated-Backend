@@ -48,4 +48,7 @@ public class ClientServices {
 	@Column(name = "price", precision = 10, scale = 2)
 	private BigDecimal price;
 
+	@Column(name = "serviceType")
+	private String serviceType;
+
 }

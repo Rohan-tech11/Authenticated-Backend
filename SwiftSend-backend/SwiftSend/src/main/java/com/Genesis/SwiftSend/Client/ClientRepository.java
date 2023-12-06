@@ -42,4 +42,23 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
 	List<Client> findByIsAdminApprovedTrueAndIsEnabledTrue();
 
+	List<Client> findByIsEnabledFalse();
+
+	/**
+	 * @param businessRegistryId
+	 * @return
+	 */
+	boolean existsByBusinessRegistryId(String businessRegistryId);
+
+	/**
+	 * @param mobileNumber
+	 * @return
+	 */
+	boolean existsByMobileNumber(String mobileNumber);
+
+	/**
+	 * @return
+	 */
+	List<Client> findByIsEnabledTrue();
+
 }

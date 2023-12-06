@@ -27,10 +27,17 @@ public class AdminService implements IAdminService {
 
 	public final ClientRepository clientRepo;
 
+	// to render all client accounts who verified their emailid
 	@Override
 	public List<Client> getAllClientAccounts() {
 		// TODO Auto-generated method stub
-		return clientRepo.findAll();
+		List<Client> unapprovedClientAccounts = clientRepo.findByIsEnabledTrue();
+
+		if (unapprovedClientAccounts != null && !unapprovedClientAccounts.isEmpty()) {
+			return unapprovedClientAccounts;
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 	@Override
@@ -77,4 +84,26 @@ public class AdminService implements IAdminService {
 		}
 	}
 
+	@Override
+	public List<Client> getAllUnVerifiedClientAccounts() {
+		List<Client> unVerifiedClientAccounts = clientRepo.findByIsEnabledFalse();
+		if (unVerifiedClientAccounts != null && !unVerifiedClientAccounts.isEmpty()) {
+			return unVerifiedClientAccounts;
+		} else {
+			return Collections.emptyList();
+		}
+	}
+
+	// to render all client accounts who registered irrespective of verified or not
+	@Override
+	public List<Client> getAllRegisteredClientAccounts() {
+		// TODO Auto-generated method stub
+		List<Client> allClientAccounts = clientRepo.findAll();
+		if (allClientAccounts != null && !allClientAccounts.isEmpty()) {
+			return allClientAccounts;
+		} else {
+			return Collections.emptyList();
+
+		}
+	}
 }

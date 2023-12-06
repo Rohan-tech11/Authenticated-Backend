@@ -10,5 +10,5 @@ import java.math.BigDecimal;
  *
  */
 public record ClientServiceRequest(String serviceName, String serviceDescription, int deliveryTimeDays,
-		BigDecimal price) {
+		BigDecimal price, String serviceType) {
 }

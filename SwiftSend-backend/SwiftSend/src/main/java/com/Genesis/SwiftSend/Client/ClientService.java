@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,50 +59,61 @@ public class ClientService implements IclientService {
 
 	@Override
 	public Client registerClient(RegistrationRequestClient request) {
-		// TODO Auto-generated method stub
-		Optional<Client> client = this.findByEmail(request.email());
-		Optional<User> theUser = userRepo.findByEmail(request.email());
+		Optional<Client> existingClient = this.findByEmail(request.email());
+		Optional<User> existingUser = userRepo.findByEmail(request.email());
 		Map<String, Object> errorDetails = new HashMap<>();
 
-		if (client.isPresent() || theUser.isPresent()) {
+		if (existingClient.isPresent() || existingUser.isPresent()) {
 			errorDetails.put("field", "email");
 			errorDetails.put("code", "EMAIL_EXISTS");
 
-			String errorMessage = client.isPresent() ? "Client with email " + request.email() + " already exists"
+			String errorMessage = existingClient.isPresent()
+					? "Client with email " + request.email() + " already exists"
 					: "An User with same email " + request.email() + " already registered";
 
 			throw new UserAlreadyExistsException(errorMessage, HttpStatus.BAD_REQUEST, errorDetails);
 		}
 
-		if (client.isPresent()) {
-			Client loggedInClient = client.get();
-			if (loggedInClient.getMobileNumber() != null) {
+		try {
+			// Check for other unique constraints
+			if (request.mobileNumber() != null && clientRepo.existsByMobileNumber(request.mobileNumber())) {
 				errorDetails.put("field", "mobile_number");
 				errorDetails.put("code", "MOBILE_NUMBER_EXISTS");
 				throw new UserAlreadyExistsException("Client with number " + request.mobileNumber() + " already exists",
 						HttpStatus.BAD_REQUEST, errorDetails);
-			} else if (loggedInClient.getBusinessRegistryId() != null) {
+			}
+
+			if (request.businessRegistryId() != null
+					&& clientRepo.existsByBusinessRegistryId(request.businessRegistryId())) {
 				errorDetails.put("field", "Business Registry Id");
-				errorDetails.put("code", "Busines  Registry Id Exists");
-				throw new UserAlreadyExistsException("Client with  Business Registry Id already exists",
+				errorDetails.put("code", "BUSINESS_REGISTRY_ID_EXISTS");
+				throw new UserAlreadyExistsException(
+						"Client with Business Registry Id " + request.businessRegistryId() + " already exists",
 						HttpStatus.BAD_REQUEST, errorDetails);
 			}
+
+			// No unique constraint violation, proceed with client registration
+			var newClient = new Client();
+			newClient.setBusinessName(request.businessName());
+			newClient.setEmail(request.email());
+			newClient.setPassword(passwordEncoder.encode(request.password()));
+			newClient.setMobileNumber(request.mobileNumber());
+			newClient.setAdminApproved(false);
+			newClient.setBusinessRegistryId(request.businessRegistryId());
+			newClient.setRegisteredOfficeLocation(request.registeredOfficeLocation());
+
+			Role clientRole = roleRepository.findByAuthority("CLIENT").get();
+			Set<Role> authorities = new HashSet<>();
+			authorities.add(clientRole);
+			newClient.setAuthorities(authorities);
+
+			return clientRepo.save(newClient);
+		} catch (DataIntegrityViolationException e) {
+			// Handle other database-related exceptions here
+			errorDetails.put("code", "DATABASE_ERROR");
+			throw new UserAlreadyExistsException("Error while processing client registration",
+					HttpStatus.INTERNAL_SERVER_ERROR, errorDetails);
 		}
-
-		var newClient = new Client();
-		newClient.setBusinessName(request.businessName());
-		newClient.setEmail(request.email());
-		newClient.setPassword(passwordEncoder.encode(request.password()));
-		newClient.setMobileNumber(request.mobileNumber());
-		newClient.setAdminApproved(false);
-		newClient.setBusinessRegistryId(request.businessRegistryId());
-		newClient.setRegisteredOfficeLocation(request.registeredOfficeLocation());
-
-		Role clientRole = roleRepository.findByAuthority("CLIENT").get();
-		Set<Role> authorities = new HashSet<>();
-		authorities.add(clientRole);
-		newClient.setAuthorities(authorities);
-		return clientRepo.save(newClient);
 	}
 
 	@Override
@@ -183,6 +195,7 @@ public class ClientService implements IclientService {
 			service.setServiceDescription(serviceRequest.serviceDescription());
 			service.setDeliveryTimeDays(serviceRequest.deliveryTimeDays());
 			service.setPrice(serviceRequest.price());
+			service.setServiceType(serviceRequest.serviceType());
 
 			ClientServices NewlyAddedservice = clientServiceRepo.save(service);
 			return ResponseHandler.responseBuilder("Service added Successfully", HttpStatus.CREATED, NewlyAddedservice);

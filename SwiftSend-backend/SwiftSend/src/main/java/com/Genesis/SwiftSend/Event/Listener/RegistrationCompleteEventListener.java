@@ -71,7 +71,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 		String senderName = "SwiftSend Registration Portal Service";
 		String mailContent = "<p> Hi, " + theUser.getFullName() + ", </p>" + "<p>Thank you for registering with us,"
 				+ "" + "Please, follow the link below to complete your registration.</p>" + "<a href=\"" + url
-				+ "\">Verify your email to activate your account</a>"
+				+ "\">Verify your email to activate your account,token will expire in 15 minutes</a>"
 				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();
 		var messageHelper = new MimeMessageHelper(message);
