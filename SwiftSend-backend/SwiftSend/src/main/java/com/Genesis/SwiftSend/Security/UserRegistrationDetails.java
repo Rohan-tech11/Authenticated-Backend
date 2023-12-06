@@ -31,12 +31,16 @@ public class UserRegistrationDetails implements UserDetails {
 	private String password;
 	private boolean isEnabled;
 	private Set<Role> authorities;
+	private String phoneNumber;
+	private String emailAddress;
 
 	public UserRegistrationDetails(User user) {
-		this.userName = user.getEmail();
+		this.userName = user.getFullName();
 		this.password = user.getPassword();
 		this.isEnabled = user.isEnabled(); // debug here
 		this.authorities = user.getAuthorities();
+		this.phoneNumber = user.getMobileNumber();
+		this.emailAddress = user.getEmail();
 	}
 
 	@Override

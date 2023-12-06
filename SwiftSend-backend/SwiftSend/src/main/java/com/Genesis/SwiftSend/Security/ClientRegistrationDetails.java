@@ -31,12 +31,16 @@ public class ClientRegistrationDetails implements UserDetails {
 	private String password;
 	private boolean isEnabled;
 	private Set<Role> authorities;
+	private String phoneNumber;
+	private String emailAddress;
 
 	public ClientRegistrationDetails(Client client) {
-		this.userName = client.getEmail();
+		this.userName = client.getBusinessName();
 		this.password = client.getPassword();
 		this.isEnabled = client.isEnabled(); // enabled will change to true if client did the email verify
 		this.authorities = client.getAuthorities();
+		this.emailAddress = client.getEmail();
+		this.phoneNumber = client.getMobileNumber();
 	}
 
 	@Override

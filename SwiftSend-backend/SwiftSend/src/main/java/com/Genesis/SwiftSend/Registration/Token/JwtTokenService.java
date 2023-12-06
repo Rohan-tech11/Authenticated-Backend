@@ -15,6 +15,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Security.ClientRegistrationDetails;
+import com.Genesis.SwiftSend.Security.UserRegistrationDetails;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -39,10 +42,23 @@ public class JwtTokenService {
 
 		String scope = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.joining(" "));
+		// Add custom claims (username and phoneNumber)
+		String phoneNumber = "";
+		String email = "";
+
+		if (auth.getPrincipal() instanceof UserRegistrationDetails) {
+			phoneNumber = ((UserRegistrationDetails) auth.getPrincipal()).getPhoneNumber();
+			email = ((UserRegistrationDetails) auth.getPrincipal()).getEmailAddress();
+
+		} else if (auth.getPrincipal() instanceof ClientRegistrationDetails) {
+			phoneNumber = ((ClientRegistrationDetails) auth.getPrincipal()).getPhoneNumber();
+			email = ((ClientRegistrationDetails) auth.getPrincipal()).getEmailAddress();
+
+		}
 
 		JwtClaimsSet claims = JwtClaimsSet.builder().issuer("SwiftSendService").issuedAt(currentTime)
-				.subject(auth.getName()) // Set the expiration time
-				.claim("roles", scope).build();
+				.subject(auth.getName()).claim("roles", scope).claim("email", email).claim("phoneNumber", phoneNumber)
+				.build();
 
 		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 	}

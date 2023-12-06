@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,7 +57,7 @@ public class RegistrationController {
 		User user = userService.registerUser(registrationRequest);
 		publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
 		return ResponseHandler.responseBuilder("Success!  Please, check your email for to complete your registration",
-				HttpStatus.CREATED, user);
+				HttpStatus.CREATED);
 	}
 
 	@PostMapping("/client")
@@ -65,8 +66,7 @@ public class RegistrationController {
 		Client client = clientService.registerClient(registrationRequest);
 		publisher.publishEvent(new RegistrationCompleteEvent(client, applicationUrl(request)));
 		return ResponseHandler.responseBuilder(
-				"Success!  Please, check your client-email account  to complete your registration", HttpStatus.CREATED,
-				client);
+				"Success!  Please, check your client-email account  to complete your registration", HttpStatus.CREATED);
 	}
 
 	/*
@@ -103,23 +103,19 @@ public class RegistrationController {
 			Client client = theToken.getClient();
 
 			if ((user != null && user.isEnabled()) || (client != null && client.isEnabled())) {
-				return ResponseEntity
-						.ok("This account has already been verified. Please <a href=\"/login\">log in</a>.");
-			}
-
-			if (user != null) {
+				return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(
+						"This account has already verified. You can now <a href=\"http://localhost:3000/login\">log in</a> to your account.");
+			} else if (user != null) {
 				String verificationResultUser = userService.validateToken(token);
 				if (verificationResultUser.equalsIgnoreCase("valid")) {
-					return ResponseEntity.ok(
-							"Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
+					return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(
+							"Email verified successfully. You can now <a href=\"http://localhost:3000/login\">log in</a> to your account.");
 				}
-			}
-
-			if (client != null) {
+			} else if (client != null) {
 				String verificationResultClient = clientService.validateToken(token);
 				if (verificationResultClient.equalsIgnoreCase("valid")) {
-					return ResponseEntity.ok(
-							"Email verified successfully. You can now <a href=\"/login\">log in</a> to your account.");
+					return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(
+							"Email verified successfully. You can now <a href=\"http://localhost:3000/login\">log in</a> to your account.");
 				}
 			}
 
