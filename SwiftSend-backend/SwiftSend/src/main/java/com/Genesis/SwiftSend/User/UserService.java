@@ -235,4 +235,26 @@ public class UserService implements IUserService {
 		return clientServicesRepository.findAll();
 	}
 
+	// used hashmap to construct the response coming from repo
+	@Override
+	public HashMap<String, Object> fetchClientServiceById(Long id) {
+		Optional<ClientServices> optionalClientService = clientServicesRepository.findById(id);
+
+		if (optionalClientService.isPresent()) {
+			ClientServices clientService = optionalClientService.get();
+			HashMap<String, Object> serviceMap = new HashMap<>();
+
+			serviceMap.put("serviceName", clientService.getServiceName());
+			serviceMap.put("serviceDescription", clientService.getServiceDescription());
+			serviceMap.put("deliveryTimeDays", clientService.getDeliveryTimeDays());
+			serviceMap.put("price", clientService.getPrice());
+			serviceMap.put("serviceType", clientService.getServiceType());
+			serviceMap.put("Service Provider", clientService.getClientName());
+
+			return serviceMap;
+		} else {
+			return new HashMap<>(); // Return an empty map if ClientServices with the given ID is not found
+		}
+	}
+
 }

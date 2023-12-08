@@ -4,6 +4,7 @@
 
 package com.Genesis.SwiftSend.User;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,5 +35,7 @@ public interface IUserService {
 	LoginResponseDto loginUser(String email, String password);
 
 	List<ClientServices> getAllClientServices();
+
+	HashMap<String, Object> fetchClientServiceById(Long id);
 
 }

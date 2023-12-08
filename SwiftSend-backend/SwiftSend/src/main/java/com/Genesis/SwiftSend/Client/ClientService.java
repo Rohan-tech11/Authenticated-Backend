@@ -4,12 +4,14 @@
 package com.Genesis.SwiftSend.Client;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -219,4 +221,29 @@ public class ClientService implements IclientService {
 			return adminApproved;
 		}
 	}
+
+	@Override
+	public List<Map<String, Object>> fetchClientServices(String email) {
+		List<ClientServices> clientServices = clientServiceRepo.findByClientEmail(email);
+
+		// The entire structure is a list (List<Map<String, Object>>) where each element
+		// is a map.
+		if (!clientServices.isEmpty()) {
+			// Map each ClientServices object to a Map with client name included
+			return clientServices.stream().map(clientService -> {
+				Map<String, Object> serviceMap = new HashMap<>();
+				serviceMap.put("id", clientService.getId());
+				serviceMap.put("serviceName", clientService.getServiceName());
+				serviceMap.put("serviceDescription", clientService.getServiceDescription());
+				serviceMap.put("deliveryTimeDays", clientService.getDeliveryTimeDays());
+				serviceMap.put("price", clientService.getPrice());
+				serviceMap.put("serviceType", clientService.getServiceType());
+				serviceMap.put("businessName", clientService.getClientName());
+				return serviceMap;
+			}).collect(Collectors.toList());
+		} else {
+			return Collections.emptyList();
+		}
+	}
+
 }

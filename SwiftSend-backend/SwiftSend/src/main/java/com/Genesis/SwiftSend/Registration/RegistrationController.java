@@ -94,6 +94,9 @@ public class RegistrationController {
 	 * , HttpStatus.NOT_FOUND, data); }
 	 */
 
+	// request param is suitable for parameters that are optional or can have
+	// default values.
+
 	@GetMapping("/verifyEmail")
 	public ResponseEntity<Object> verifyEmail(@RequestParam("token") String token) {
 		VerificationToken theToken = tokenRepository.findByToken(token);

@@ -5,16 +5,16 @@ package com.Genesis.SwiftSend.Client;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 /**
@@ -28,12 +28,10 @@ public class ClientServices {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonIgnore
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "client_id", nullable = false)
-	@JsonIgnore
 	private Client client;
 
 	@Column(name = "service_name", nullable = false)
@@ -50,5 +48,10 @@ public class ClientServices {
 
 	@Column(name = "serviceType")
 	private String serviceType;
+
+	@Transient
+	public String getClientName() {
+		return client != null ? client.getBusinessName() : null;
+	}
 
 }

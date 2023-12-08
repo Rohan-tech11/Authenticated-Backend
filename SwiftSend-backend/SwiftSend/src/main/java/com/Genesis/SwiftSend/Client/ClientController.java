@@ -3,6 +3,9 @@
  */
 package com.Genesis.SwiftSend.Client;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -67,6 +70,19 @@ public class ClientController {
 					HttpStatus.NOT_ACCEPTABLE, isAdminApproved);
 		}
 
+	}
+
+	@GetMapping("/fetchServices")
+	public ResponseEntity<Object> fetchServices(Authentication authentication) {
+
+		String clientEmail = ((Jwt) authentication.getPrincipal()).getClaim("email");
+		List<Map<String, Object>> clientServicesEmail = clientService.fetchClientServices(clientEmail);
+		if (!clientServicesEmail.isEmpty()) {
+			return ResponseHandler.responseBuilder("Fetched the Client services ", HttpStatus.OK, clientServicesEmail);
+		} else {
+			return ResponseHandler.responseBuilder("No Services available for this client ", HttpStatus.OK);
+
+		}
 	}
 
 }

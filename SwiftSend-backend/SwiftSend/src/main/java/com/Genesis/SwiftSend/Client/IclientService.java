@@ -4,6 +4,7 @@
 package com.Genesis.SwiftSend.Client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -43,5 +44,7 @@ public interface IclientService {
 	ResponseEntity<Object> addService(ClientServiceRequest serviceRequest, String email);
 
 	boolean isAdminApproved(String clientEmail);
+
+	List<Map<String, Object>> fetchClientServices(String email);
 
 }
