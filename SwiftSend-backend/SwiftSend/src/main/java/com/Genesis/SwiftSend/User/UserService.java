@@ -29,7 +29,7 @@ import com.Genesis.SwiftSend.Client.ClientRepository;
 import com.Genesis.SwiftSend.Client.ClientServices;
 import com.Genesis.SwiftSend.Client.ClientServicesRepository;
 import com.Genesis.SwiftSend.Exception.AccountDisabledException;
-import com.Genesis.SwiftSend.Exception.CustomException;
+import com.Genesis.SwiftSend.Exception.ResponseStatusException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequest;
 import com.Genesis.SwiftSend.Registration.Token.JwtTokenService;
@@ -208,23 +208,23 @@ public class UserService implements IUserService {
 				// Handle invalid username or password
 				errorDetails.put("field", "username or password");
 				errorDetails.put("code", "INVALID_CREDENTIALS");
-				throw new CustomException("Invalid credentials", HttpStatus.BAD_REQUEST, errorDetails);
+				throw new ResponseStatusException("Invalid credentials", HttpStatus.BAD_REQUEST, errorDetails);
 			} else if (e instanceof LockedException) {
 				// Handle locked account
 				errorDetails.put("code", "ACCOUNT_LOCKED");
-				throw new CustomException("Account is Locked", HttpStatus.BAD_REQUEST, errorDetails);
+				throw new ResponseStatusException("Account is Locked", HttpStatus.BAD_REQUEST, errorDetails);
 			} else if (e instanceof AccountDisabledException) {
 				// Handle disabled account
 				errorDetails.put("code", "ACCOUNT_DISABLED");
-				throw new CustomException("Account is disabled", HttpStatus.BAD_REQUEST, errorDetails);
+				throw new ResponseStatusException("Account is disabled", HttpStatus.BAD_REQUEST, errorDetails);
 			} else if (e instanceof AccountExpiredException) {
 				// Handle expired account
 				errorDetails.put("code", "ACCOUNT_EXPIRED");
-				throw new CustomException("Account is expired", HttpStatus.BAD_REQUEST, errorDetails);
+				throw new ResponseStatusException("Account is expired", HttpStatus.BAD_REQUEST, errorDetails);
 			} else {
 				// Handle other authentication exceptions
 				errorDetails.put("code", "EMAIL_VERIFICATIONFAILED");
-				throw new CustomException("Email Verification  failed", HttpStatus.BAD_REQUEST, errorDetails);
+				throw new ResponseStatusException("Email Verification  failed", HttpStatus.BAD_REQUEST, errorDetails);
 			}
 		}
 	}

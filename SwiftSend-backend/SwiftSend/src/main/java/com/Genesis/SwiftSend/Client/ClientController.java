@@ -85,4 +85,17 @@ public class ClientController {
 		}
 	}
 
+//	@GetMapping("/getAllOrders")
+//	public ResponseEntity<Object> getUserOrder(Authentication authentication) {
+//
+//		String clientEmail = ((Jwt) authentication.getPrincipal()).getClaim("email");
+//		List<Map<String, Object>> clientServicesEmail = clientService.fetchClientServices(clientEmail);
+//		if (!clientServicesEmail.isEmpty()) {
+//			return ResponseHandler.responseBuilder("Fetched the Client services ", HttpStatus.OK, clientServicesEmail);
+//		} else {
+//			return ResponseHandler.responseBuilder("No Services available for this client ", HttpStatus.OK);
+//
+//		}
+//	}
+
 }

@@ -47,4 +47,10 @@ public interface IclientService {
 
 	List<Map<String, Object>> fetchClientServices(String email);
 
+	/**
+	 * @param serviceId
+	 * @return
+	 */
+	ClientServices findByClientService(long serviceId);
+
 }

@@ -62,8 +62,8 @@ public class RegistrationExceptionHandler {
 		return new ResponseEntity<>(response, ex.getHttpStatus());
 	}
 
-	@ExceptionHandler(CustomException.class)
-	public ResponseEntity<Object> handleCustomException(CustomException ex) {
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Object> handleCustomException(ResponseStatusException ex) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("message", ex.getMessage());
 		response.put("httpStatus", ex.getHttpStatus());

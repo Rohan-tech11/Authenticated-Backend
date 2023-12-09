@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Exception.ResponseStatusException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequestClient;
 import com.Genesis.SwiftSend.Registration.Token.JwtTokenService;
@@ -244,6 +245,18 @@ public class ClientService implements IclientService {
 		} else {
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public ClientServices findByClientService(long serviceId) {
+		// Find the ClientServices by serviceId
+		ClientServices clientService = clientServiceRepo.findById(serviceId)
+				.orElseThrow(() -> new ResponseStatusException("Client Services not found with id: " + serviceId,
+						HttpStatus.NOT_FOUND));
+
+		// Get the associated Client from ClientServices
+
+		return clientService;
 	}
 
 }
