@@ -3,9 +3,15 @@
  */
 package com.Genesis.SwiftSend.UserOrder;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Client.Client;
 import com.Genesis.SwiftSend.Client.ClientServices;
 import com.Genesis.SwiftSend.Client.ClientServicesRepository;
 import com.Genesis.SwiftSend.Exception.ResponseStatusException;
@@ -40,6 +46,7 @@ public class OrdersService implements IOrdersService {
 
 			// Create a new order
 			Orders newOrder = new Orders();
+			newOrder.setClient(clientServices.getClient());
 			newOrder.setClientServices(clientServices);
 			newOrder.setDestination(orderRequest.destination());
 			newOrder.setDimensions(orderRequest.dimensions());
@@ -74,4 +81,38 @@ public class OrdersService implements IOrdersService {
 				.orElseThrow(() -> new ResponseStatusException("Client Services not found with id: " + serviceId,
 						HttpStatus.NOT_FOUND));
 	}
+
+	@Override
+	public List<Map<String, Object>> getOrdersByClient(Client client) {
+		List<Orders> orders = ordersRepo.findByClient(client);
+
+		if (!orders.isEmpty()) {
+
+			return orders.stream().map(order -> {
+
+				User customer = order.getUser();
+
+				Map<String, Object> orderMap = new HashMap<>();
+				orderMap.put("OrderId", order.getId());
+				orderMap.put("CustomerName", customer.getFullName());
+				orderMap.put("CustomerEmailAddress", customer.getEmail());
+				orderMap.put("CustomerContact", customer.getMobileNumber());
+				orderMap.put("ServiceName", order.getClientServices().getServiceName());
+				orderMap.put("Source", order.getSource());
+				orderMap.put("Destination", order.getDestination());
+				orderMap.put("Premium", order.getPremium());
+				orderMap.put("Dimensions", order.getDimensions());
+				orderMap.put("Weight", order.getWeight());
+				orderMap.put("Type", order.getType());
+				orderMap.put("ImaegUrl", order.getImageURL());
+
+				return orderMap;
+			}).collect(Collectors.toList());
+
+		}
+
+		throw new ResponseStatusException("No orders found for client: " + client.getBusinessName(),
+				HttpStatus.NOT_FOUND);
+	}
+
 }

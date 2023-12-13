@@ -249,7 +249,7 @@ public class UserService implements IUserService {
 			serviceMap.put("deliveryTimeDays", clientService.getDeliveryTimeDays());
 			serviceMap.put("price", clientService.getPrice());
 			serviceMap.put("serviceType", clientService.getServiceType());
-			serviceMap.put("Service Provider", clientService.getClientName());
+			serviceMap.put("ServiceProvider", clientService.getClientName());
 
 			return serviceMap;
 		} else {

@@ -3,6 +3,7 @@
  */
 package com.Genesis.SwiftSend.UserOrder;
 
+import com.Genesis.SwiftSend.Client.Client;
 import com.Genesis.SwiftSend.Client.ClientServices;
 import com.Genesis.SwiftSend.User.User;
 
@@ -44,6 +45,10 @@ public class Orders {
 	@ManyToOne
 	@JoinColumn(name = "client_services_id")
 	private ClientServices clientServices;
+
+	@ManyToOne
+	@JoinColumn(name = "client_id")
+	private Client client;
 
 	@Column(nullable = false)
 	private String premium;

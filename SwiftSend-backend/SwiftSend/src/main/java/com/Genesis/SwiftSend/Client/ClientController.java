@@ -5,6 +5,7 @@ package com.Genesis.SwiftSend.Client;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Genesis.SwiftSend.ResponseHandler.ResponseHandler;
+import com.Genesis.SwiftSend.UserOrder.IOrdersService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ClientController {
 
 	private final ClientService clientService;
+
+	private final IOrdersService ordersService;
 
 	// to do : do research on making authenticaton object and loggedin client email
 	// in global scope
@@ -85,17 +89,13 @@ public class ClientController {
 		}
 	}
 
-//	@GetMapping("/getAllOrders")
-//	public ResponseEntity<Object> getUserOrder(Authentication authentication) {
-//
-//		String clientEmail = ((Jwt) authentication.getPrincipal()).getClaim("email");
-//		List<Map<String, Object>> clientServicesEmail = clientService.fetchClientServices(clientEmail);
-//		if (!clientServicesEmail.isEmpty()) {
-//			return ResponseHandler.responseBuilder("Fetched the Client services ", HttpStatus.OK, clientServicesEmail);
-//		} else {
-//			return ResponseHandler.responseBuilder("No Services available for this client ", HttpStatus.OK);
-//
-//		}
-//	}
+	@GetMapping("/getAllOrders")
+	public ResponseEntity<Object> getUserOrder(Authentication authentication) {
 
+		String clientEmail = ((Jwt) authentication.getPrincipal()).getClaim("email");
+		Optional<Client> client = clientService.findByEmail(clientEmail);
+		List<Map<String, Object>> clientOrders = ordersService.getOrdersByClient(client.get());
+		return ResponseHandler.responseBuilder("Fetched the Client  orders ", HttpStatus.OK, clientOrders);
+
+	}
 }
