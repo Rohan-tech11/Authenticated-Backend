@@ -105,6 +105,7 @@ public class OrdersService implements IOrdersService {
 				orderMap.put("Weight", order.getWeight());
 				orderMap.put("Type", order.getType());
 				orderMap.put("ImaegUrl", order.getImageURL());
+				orderMap.put("PricePerKm", order.getClientServices().getPrice());
 
 				return orderMap;
 			}).collect(Collectors.toList());

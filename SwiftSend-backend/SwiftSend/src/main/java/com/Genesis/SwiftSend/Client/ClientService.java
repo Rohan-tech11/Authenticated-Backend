@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Genesis.SwiftSend.Event.SendQuotationEvent;
 import com.Genesis.SwiftSend.Exception.ResponseStatusException;
 import com.Genesis.SwiftSend.Exception.UserAlreadyExistsException;
 import com.Genesis.SwiftSend.Registration.RegistrationRequestClient;
@@ -32,6 +34,8 @@ import com.Genesis.SwiftSend.Role.Role;
 import com.Genesis.SwiftSend.Role.RoleRepository;
 import com.Genesis.SwiftSend.User.User;
 import com.Genesis.SwiftSend.User.UserRepository;
+import com.Genesis.SwiftSend.UserOrder.Orders;
+import com.Genesis.SwiftSend.UserOrder.OrdersRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,6 +55,9 @@ public class ClientService implements IclientService {
 	private final RoleRepository roleRepository;
 	private final AuthenticationManager authenticationManager;
 	private final ClientServicesRepository clientServiceRepo;
+	private final ClientQuotationRepository clientQuotationRepo;
+	private final OrdersRepository ordersRepo;
+	private final ApplicationEventPublisher publisher;
 
 	private final JwtTokenService JWTtokenService;
 
@@ -257,6 +264,44 @@ public class ClientService implements IclientService {
 		// Get the associated Client from ClientServices
 
 		return clientService;
+	}
+
+	public static double calculateTax(double price) {
+		// Assuming tax is 13% of the total price
+		double taxRate = 0.13;
+		return price * taxRate;
+	}
+
+	public static double calculatePlatformFee(double price) {
+		// Assuming platform fee is 10% of the total price
+		double platformFeeRate = 0.10;
+		return price * platformFeeRate;
+	}
+
+	@Override
+	public void createQuotation(Long orderId, QuotationRequest quotationRequest) {
+		double price = quotationRequest.price();
+		double platformFee = calculatePlatformFee(price);
+		double tax = calculateTax(price);
+		Orders order = ordersRepo.findById(orderId).orElseThrow(() -> {
+			throw new ResponseStatusException("No orders for this ID : " + orderId, HttpStatus.NOT_FOUND);
+		});
+
+		User theUser = order.getUser();
+		Client client = order.getClient();
+		ClientQuotation quotation = new ClientQuotation();
+
+		quotation.setClient(client);
+		quotation.setOrder(order);
+		quotation.setDeliveryDays(quotationRequest.deliveryDays());
+		quotation.setPrice(price);
+		quotation.setPlatformFee(calculatePlatformFee(price));
+		quotation.setTax(calculateTax(price));
+		quotation.setTotalCost(price + platformFee + tax);
+
+		clientQuotationRepo.save(quotation);
+
+		publisher.publishEvent(new SendQuotationEvent(theUser, quotation));
 	}
 
 }

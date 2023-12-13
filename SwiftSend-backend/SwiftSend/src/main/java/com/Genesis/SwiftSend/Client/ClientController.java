@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -97,5 +98,13 @@ public class ClientController {
 		List<Map<String, Object>> clientOrders = ordersService.getOrdersByClient(client.get());
 		return ResponseHandler.responseBuilder("Fetched the Client  orders ", HttpStatus.OK, clientOrders);
 
+	}
+
+	@PostMapping("/createQuotation/{orderId}")
+	public ResponseEntity<Object> createClientQuotation(@PathVariable Long orderId,
+			@RequestBody QuotationRequest quotationRequest) {
+
+		clientService.createQuotation(orderId, quotationRequest);
+		return ResponseHandler.responseBuilder("saved the client quotation ", HttpStatus.OK);
 	}
 }

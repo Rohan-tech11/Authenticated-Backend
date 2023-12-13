@@ -75,7 +75,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();
 		var messageHelper = new MimeMessageHelper(message);
-		messageHelper.setFrom("heyminion0401@gmail.com", senderName);
+		messageHelper.setFrom("swiftsend743@gmail.com", senderName);
 		messageHelper.setTo(theUser.getEmail());
 		messageHelper.setSubject(subject);
 		messageHelper.setText(mailContent, true);
@@ -92,7 +92,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
 				+ "<p> Thank you <br> Swiftsend users Registration Portal Service";
 		MimeMessage message = mailSender.createMimeMessage();
 		var messageHelper = new MimeMessageHelper(message);
-		messageHelper.setFrom("heyminion0401@gmail.com", senderName);
+		messageHelper.setFrom("swiftsend743@gmail.com", senderName);
 		messageHelper.setTo(theClient.getEmail());
 		messageHelper.setSubject(subject);
 		messageHelper.setText(mailContent, true);

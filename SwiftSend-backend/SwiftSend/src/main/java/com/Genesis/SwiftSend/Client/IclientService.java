@@ -53,4 +53,6 @@ public interface IclientService {
 	 */
 	ClientServices findByClientService(long serviceId);
 
+	void createQuotation(Long orderId, QuotationRequest quotationRequest);
+
 }
